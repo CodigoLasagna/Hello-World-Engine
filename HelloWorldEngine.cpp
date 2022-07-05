@@ -159,6 +159,10 @@ void Window::clean(){
 	}
 }
 
+void Instance::set_color(int fg, int bg, bool alt){
+	m_fgcolor = fg;
+	m_bgcolor = bg;
+}
 Instance* instance_create(int x, int y, char sprite){
 	return new Instance(x, y, sprite);
 }

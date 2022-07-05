@@ -33,6 +33,7 @@ public:
 	Instance(double x, double y, char sprite);
 	double get_coord(char coord);
 	void set_coord(char coord, double value);
+	void set_color(int fg, int bg, bool alt);
 	
 	char get_sprite();
 	void set_sprite(char new_sprite);
