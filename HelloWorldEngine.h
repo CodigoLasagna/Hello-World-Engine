@@ -10,6 +10,15 @@
 #include <thread>
 #include <iostream>
 
+#define C_BLACK		0
+#define C_RED		1
+#define C_GREEN		2
+#define C_YELLOW	3
+#define C_BLUE		4
+#define C_MAGENTA	5
+#define C_CYAN		6
+#define C_WHITE		7
+
 class Instance{
 private:
 	bool m_solid{};
@@ -17,6 +26,9 @@ private:
 public:
 	double m_coordx{};
 	double m_coordy{};
+	int m_fgcolor{};
+	int m_bgcolor{-1};
+	bool m_bcolor{};
 	Instance();
 	Instance(double x, double y, char sprite);
 	double get_coord(char coord);
@@ -55,15 +67,14 @@ class Window{
 	public:
 		int m_width = 10;
 		int m_height = 10;
+		int m_fgcolor{};
+		int m_bgcolor{-1};
+		bool m_bcolor{};
 		WINDOW* win;
 		PANEL* pane;
 		Window(int width, int height, int x, int y, bool fix);
-		void init();
-		void init(int w, int h);
 		void show(bool s);
 		void clean();
-		void fixate();
-		void create_pane();
 		~Window() = default;
 };
 

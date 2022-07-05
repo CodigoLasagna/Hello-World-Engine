@@ -1,4 +1,5 @@
 #include "HelloWorldEngine.h" 
+#include <curses.h>
 
 Instance::Instance(){}
 
@@ -65,9 +66,19 @@ void Renderer::load_curses(){
 	initscr();
 	noecho();
 	cbreak();
-	curs_set(FALSE);	
+	curs_set(FALSE);
 	nodelay(stdscr, TRUE);
 	keypad(stdscr,TRUE);
+	use_default_colors();
+	start_color();
+	init_pair(C_BLACK, C_BLACK, -1);
+	init_pair(C_RED, C_RED, -1);
+	init_pair(C_GREEN, C_GREEN, -1);
+	init_pair(C_YELLOW, C_YELLOW, -1);
+	init_pair(C_BLUE, C_BLUE, -1);
+	init_pair(C_MAGENTA, C_MAGENTA, -1);
+	init_pair(C_CYAN, C_CYAN, -1);
+	init_pair(C_WHITE, C_WHITE, -1);
 }
 
 void Renderer::start_renderer(){
@@ -125,17 +136,7 @@ Window::Window(int width, int height, int x, int y, bool fix):
 		win = newwin(m_height, m_width, y, x);
 	}
 	pane = new_panel(win);
-	box(win, 0, 0);
-}
-void Window::init(){
-	fixate();
-	box(win, 0, 0);
-}
-void Window::init(int w, int h){
-	fixate();
-	win = newwin(h, w, 0, 0);
-	pane = new_panel(win);
-	box(win, 0, 0);
+	clean();
 }
 void Window::show(bool s){
 	if (s == true){
@@ -146,28 +147,16 @@ void Window::show(bool s){
 }
 void Window::clean(){
 	werase(win);
-	box(win, 0, 0);
-}
-void Window::fixate(){
-	getmaxyx(stdscr, term_h, term_w);
-	win = newwin(m_height, m_width, int(term_h/2)-(m_height/2), int(term_w/2)-(m_width/2));
-	pane = new_panel(win);
-}
-
-WINDOW* create_panel(int x, int y, int width, int height){
-	WINDOW* win;
-	PANEL* panel;
-	
-	win = newwin(height, width, y, x);
-	panel = new_panel(win);
-	box(win, 0, 0);
-	
-	return win;
-}
-
-void clear_panel(WINDOW* win){
-	werase(win);
-	box(win, 0, 0);
+	init_pair(m_fgcolor, m_fgcolor, m_bgcolor);
+	if (m_bcolor == false){
+		wattron(win, COLOR_PAIR(m_fgcolor));
+		box(win, 0, 0);
+		wattroff(win, COLOR_PAIR(m_fgcolor));
+	}else{
+		wattron(win, A_BOLD | COLOR_PAIR(m_fgcolor));
+		box(win, 0, 0);
+		wattroff(win, A_BOLD | COLOR_PAIR(m_fgcolor));
+	}
 }
 
 Instance* instance_create(int x, int y, char sprite){
@@ -182,5 +171,14 @@ void instance_draw(WINDOW* win, Instance* instance){
 	char s{instance->get_sprite()};
 	double temp_x{instance->get_coord('x')};
 	double temp_y{instance->get_coord('y')};
-	mvwprintw(win, temp_y, temp_x, "%c", s);
+	init_pair(instance->m_fgcolor, instance->m_fgcolor, instance->m_bgcolor);
+	if (instance->m_bcolor == false){
+		wattron(win, COLOR_PAIR(instance->m_fgcolor));
+		mvwprintw(win, temp_y, temp_x, "%c", s);
+		wattroff(win, COLOR_PAIR(instance->m_fgcolor));
+	}else{
+		wattron(win, A_BOLD | COLOR_PAIR(instance->m_fgcolor));
+		mvwprintw(win, temp_y, temp_x, "%c", s);
+		wattroff(win, A_BOLD | COLOR_PAIR(instance->m_fgcolor));
+	}
 }
