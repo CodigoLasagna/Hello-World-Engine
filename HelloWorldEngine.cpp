@@ -1,5 +1,4 @@
 #include "HelloWorldEngine.h" 
-#include <curses.h>
 
 Instance::Instance(){}
 

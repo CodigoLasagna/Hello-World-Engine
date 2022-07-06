@@ -24,6 +24,7 @@ private:
 	bool m_solid{};
 	char m_sprite{'#'};
 public:
+	int m_type{};
 	double m_coordx{};
 	double m_coordy{};
 	int m_fgcolor{};
