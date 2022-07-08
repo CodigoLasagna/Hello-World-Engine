@@ -22,7 +22,7 @@
 class Instance{
 private:
 	bool m_solid{};
-	char m_sprite{'#'};
+	chtype m_sprite{'#'};
 public:
 	int m_type{};
 	double m_coordx{};
@@ -31,13 +31,13 @@ public:
 	int m_bgcolor{-1};
 	bool m_bcolor{};
 	Instance();
-	Instance(double x, double y, char sprite);
+	Instance(double x, double y, chtype sprite);
 	double get_coord(char coord);
 	void set_coord(char coord, double value);
 	void set_color(int fg, int bg, bool alt);
 	
-	char get_sprite();
-	void set_sprite(char new_sprite);
+	chtype get_sprite();
+	void set_sprite(chtype new_sprite);
 	
 	~Instance();
 };
@@ -80,7 +80,7 @@ class Window{
 		~Window() = default;
 };
 
-Instance* instance_create(int x, int y, char sprite);
+Instance* instance_create(int x, int y, chtype sprite);
 void instance_destroy(Instance* instance);
 
 void instance_draw(WINDOW*, Instance* instance);

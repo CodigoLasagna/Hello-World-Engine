@@ -1,5 +1,5 @@
 CXX := g++
-CFLAGS := -g
+CFLAGS := -Wall -g
 LDLIBS := -lncurses -lpanel
 TARGET := main
 

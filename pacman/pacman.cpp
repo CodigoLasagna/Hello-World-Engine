@@ -1,7 +1,7 @@
 //nr
-#include "../HelloWorldEngine.h"
 #include <curses.h>
 #include <fstream>
+#include "../HelloWorldEngine.h"
 
 int main(){
 	char key{};
@@ -22,6 +22,13 @@ int main(){
 	std::string filename("map.txt");
 	std::ifstream indata;
 	indata.open(filename);
+	while(!indata.is_open()){
+		main_env->start_renderer();
+		mvwaddstr(win[0].win, world_h/2, 1, "Check if 'map.txt' exists");
+		filename = "pacman/map.txt";
+		indata.open(filename);
+		main_env->update_renderer();
+	}
 	int count = 0;
 	char letter;
 	indata >> letter;
@@ -29,47 +36,23 @@ int main(){
 		if (letter != '$'){
 			if (letter == '#'){
 				tile[count].set_sprite('#');
-				tile[count].m_type = 1;
-				tile[count].m_fgcolor = C_BLUE;
-			}else if( letter == 'u'){
-				tile[count].set_sprite('-');
-				tile[count].m_type = 1;
-				tile[count].m_fgcolor = C_BLUE;
-			}else if( letter == 'v'){
-				tile[count].set_sprite('|');
-				tile[count].m_type = 1;
-				tile[count].m_fgcolor = C_BLUE;
-			}else if( letter == 'r'){
-				tile[count].set_sprite('r');
-				tile[count].m_type = 1;
-				tile[count].m_fgcolor = C_BLUE;
-			}else if( letter == 'l'){
-				tile[count].set_sprite('l');
-				tile[count].m_type = 1;
-				tile[count].m_fgcolor = C_BLUE;
-			}else if( letter == 'R'){
-				tile[count].set_sprite('R');
-				tile[count].m_type = 1;
-				tile[count].m_fgcolor = C_BLUE;
-			}else if( letter == 'L'){
-				tile[count].set_sprite('L');
-				tile[count].m_type = 1;
+				tile[count].m_type = 2;
 				tile[count].m_fgcolor = C_BLUE;
 			}else if (letter == '.'){
 				tile[count].set_sprite('.');
-				tile[count].m_type = 2;
+				tile[count].m_type = 1;
 				tile[count].m_bcolor = true;
 				tile[count].m_fgcolor = C_YELLOW;
 			}else if (letter == 'o'){
 				tile[count].set_sprite('o');
-				tile[count].m_type = 2;
+				tile[count].m_type = 1;
 				tile[count].m_bcolor = true;
 				tile[count].m_fgcolor = C_YELLOW;
 			}else if (letter == ','){
 				tile[count].set_sprite(' ');
 				tile[count].m_type = 0;
 			}else{
-				tile[count].set_sprite(' ');
+				tile[count].set_sprite(ACS_HLINE);
 				tile[count].m_type = 3;
 			}
 			tile[count].m_coordx = xx+1;
@@ -81,6 +64,66 @@ int main(){
 			xx = 0;
 		}
 		indata >> letter;
+	}
+	
+	for (int i = 0; i < tiles; i++){
+		for (int j = 0; j < tiles; j++){
+			if (tile[i].get_sprite() == '#'){
+				if (tile[i].m_coordx-1 == tile[i-1].m_coordx && tile[i].m_coordy == tile[i-1].m_coordy){
+					if (tile[i].m_coordx+1 == tile[i+1].m_coordx && tile[i].m_coordy == tile[i+1].m_coordy){
+						if (tile[i-1].m_type == 2 && tile[i+1].m_type == 2 || ((tile[i-1].m_type == 2 && tile[i+1].m_type == 3) || (tile[i-1].m_type == 3 && tile[i+1].m_type == 2))){
+							if (tile[j].get_sprite() == '.' && tile[j].m_coordx == tile[i].m_coordx && tile[j].m_coordy-1 == tile[i].m_coordy){
+									tile[i].set_sprite(ACS_HLINE);
+							}else if (tile[j].get_sprite() == '.' && tile[j].m_coordx == tile[i].m_coordx && tile[j].m_coordy+1 == tile[i].m_coordy){
+								tile[i].set_sprite(ACS_HLINE);
+							}else{
+								if (tile[j].get_sprite() == '#' && tile[j].m_coordx == tile[i].m_coordx && tile[j].m_coordy-1 == tile[i].m_coordy){
+									if (tile[i-1].get_sprite() == ACS_HLINE && (tile[i-26].get_sprite() == ACS_HLINE || tile[i-26].get_sprite() == ACS_LRCORNER)){
+										tile[i].set_sprite(ACS_URCORNER);
+									}else if (tile[i-1].get_sprite() == ACS_URCORNER && tile[i-26].get_sprite() == ACS_HLINE){
+										tile[i].set_sprite(ACS_ULCORNER);
+									}else{
+										if ((tile[i-1].get_sprite() == ACS_HLINE || tile[i-1].get_sprite() == '#') && tile[i+1].get_sprite() == '#' && tile[i-26].get_sprite() == ACS_VLINE){
+											tile[i].set_sprite(ACS_LRCORNER);
+										}else if (tile[i-1].get_sprite() == ACS_VLINE && tile[i+26].get_sprite() == '#' && tile[i-26].get_sprite() != ACS_VLINE){
+											tile[i].set_sprite(ACS_ULCORNER);
+										}else{
+											tile[i].set_sprite(ACS_LLCORNER);
+										}
+									}
+								}
+							}
+						}else if (tile[i-1].m_type == 1 && tile[i+1].m_type == 2) {
+							if (tile[j].get_sprite() == '.' && tile[j].m_coordx == tile[i].m_coordx && tile[j].m_coordy+1 == tile[i].m_coordy){
+								tile[i].set_sprite(ACS_ULCORNER);
+							}else if (tile[j].get_sprite() == '.' && tile[j].m_coordx == tile[i].m_coordx && tile[j].m_coordy-1 == tile[i].m_coordy){
+								tile[i].set_sprite(ACS_LLCORNER);
+							}else{
+								if (tile[i-26].get_sprite() != '.' && tile[i+26].get_sprite() != '.'){
+									tile[i].set_sprite(ACS_VLINE);
+								}
+							}
+						}else if (tile[i-1].m_type == 2 && tile[i+1].m_type == 1) {
+							if (tile[j].get_sprite() == '.' && tile[j].m_coordx == tile[i].m_coordx && tile[j].m_coordy+1 == tile[i].m_coordy){
+								tile[i].set_sprite(ACS_URCORNER);
+							}else if (tile[j].get_sprite() == '.' && tile[j].m_coordx == tile[i].m_coordx && tile[j].m_coordy-1 == tile[i].m_coordy){
+								tile[i].set_sprite(ACS_LRCORNER);
+							}else{
+								if (tile[i-26].get_sprite() != '.' && tile[i+26].get_sprite() != '.'){
+									tile[i].set_sprite(ACS_VLINE);
+								}
+							}
+						}else{
+							tile[i].set_sprite(ACS_VLINE);
+						}
+					}
+				}
+			}
+		}
+	}
+	for (int i = 0; i < tiles; i++){
+		for (int j = 0; j < tiles; j++){
+		}
 	}
 	
 	int spd{1}, temp_spd{1};
@@ -138,26 +181,11 @@ int main(){
 		player->set_coord(dir, player->get_coord(dir) + spd);
 		for (int i = 0; i < tiles; i++){
 			instance_draw(win[0].win, &tile[i]);
-			wattron(win[0].win, COLOR_PAIR(C_BLUE));
-			if (tile[i].get_sprite() == '-'){
-				mvwaddch(win[0].win, tile[i].m_coordy, tile[i].m_coordx, ACS_HLINE);
-			}else if (tile[i].get_sprite() == '|'){
-				mvwaddch(win[0].win, tile[i].m_coordy, tile[i].m_coordx, ACS_VLINE);
-			}else if (tile[i].get_sprite() == 'r'){
-				mvwaddch(win[0].win, tile[i].m_coordy, tile[i].m_coordx, ACS_ULCORNER);
-			}else if (tile[i].get_sprite() == 'l'){
-				mvwaddch(win[0].win, tile[i].m_coordy, tile[i].m_coordx, ACS_URCORNER);
-			}else if (tile[i].get_sprite() == 'R'){
-				mvwaddch(win[0].win, tile[i].m_coordy, tile[i].m_coordx, ACS_LLCORNER);
-			}else if (tile[i].get_sprite() == 'L'){
-				mvwaddch(win[0].win, tile[i].m_coordy, tile[i].m_coordx, ACS_LRCORNER);
-			}
-			wattroff(win[0].win, COLOR_PAIR(C_BLUE));
-			if (player->m_coordx == tile[i].m_coordx && (tile[i].m_type == 1 || tile[i].m_type == 0) && player->m_coordy == tile[i].m_coordy){
+			if (player->m_coordx == tile[i].m_coordx && (tile[i].m_type >= 2 || tile[i].m_type == 0) && player->m_coordy == tile[i].m_coordy){
 				player->set_coord(dir, player->get_coord(dir) - spd);
 				spd = temp_spd; dir = temp_dir; lim = temp_lim;
 			}
-			if (player->m_coordx == tile[i].m_coordx && tile[i].m_type == 2 && player->m_coordy == tile[i].m_coordy){
+			if (player->m_coordx == tile[i].m_coordx && tile[i].m_type == 1 && player->m_coordy == tile[i].m_coordy){
 				tile[i].m_coordx = -1;
 			}
 		}
@@ -166,8 +194,6 @@ int main(){
 		}
 		if (player->m_coordx >= world_w || player->m_coordx <= -1)
 			player->m_coordx -= (world_w)*(spd);
-		mvwaddch(win[0].win, 12, 13, ACS_HLINE);
-		mvwaddch(win[0].win, 12, 14, ACS_HLINE);
 		instance_draw(win[0].win, player);
 		for (int i = 0; i < 4; i++){
 			instance_draw(win[0].win, &ghost[i]);

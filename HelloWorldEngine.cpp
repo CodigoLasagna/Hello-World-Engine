@@ -2,7 +2,7 @@
 
 Instance::Instance(){}
 
-Instance::Instance(double x, double y, char sprite) :
+Instance::Instance(double x, double y, chtype sprite) :
 m_coordx(x), m_coordy(y), m_sprite(sprite){}
 
 double Instance::get_coord(char coord){
@@ -21,10 +21,10 @@ void Instance::set_coord(char coord, double value){
 	}
 }
 
-char Instance::get_sprite(){
+chtype Instance::get_sprite(){
 	return m_sprite;
 }
-void Instance::set_sprite(char new_sprite){
+void Instance::set_sprite(chtype new_sprite){
 	m_sprite = new_sprite;
 }
 
@@ -162,7 +162,7 @@ void Instance::set_color(int fg, int bg, bool alt){
 	m_fgcolor = fg;
 	m_bgcolor = bg;
 }
-Instance* instance_create(int x, int y, char sprite){
+Instance* instance_create(int x, int y, chtype sprite){
 	return new Instance(x, y, sprite);
 }
 void instance_destroy(Instance* instance){
@@ -171,17 +171,17 @@ void instance_destroy(Instance* instance){
 }
 
 void instance_draw(WINDOW* win, Instance* instance){
-	char s{instance->get_sprite()};
+	chtype s{instance->get_sprite()};
 	double temp_x{instance->get_coord('x')};
 	double temp_y{instance->get_coord('y')};
 	init_pair(instance->m_fgcolor, instance->m_fgcolor, instance->m_bgcolor);
 	if (instance->m_bcolor == false){
 		wattron(win, COLOR_PAIR(instance->m_fgcolor));
-		mvwprintw(win, temp_y, temp_x, "%c", s);
+		mvwaddch(win, temp_y, temp_x, s);
 		wattroff(win, COLOR_PAIR(instance->m_fgcolor));
 	}else{
 		wattron(win, A_BOLD | COLOR_PAIR(instance->m_fgcolor));
-		mvwprintw(win, temp_y, temp_x, "%c", s);
+		mvwaddch(win, temp_y, temp_x, s);
 		wattroff(win, A_BOLD | COLOR_PAIR(instance->m_fgcolor));
 	}
 }
