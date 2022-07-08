@@ -1,4 +1,5 @@
 //nr
+#include <curses.h>
 #include <fstream>
 #include "../HelloWorldEngine.h"
 	
@@ -8,13 +9,22 @@ int main(){
 	int term_w = main_env->get_term_size('w'), term_h = main_env->get_term_size('h');
 	int world_w = 28, world_h = 31;
 	int xx{0}, yy{0};
-	Window* win = new Window[1]{Window(world_w, world_h, 0, 0, false)};
+	Window* win = new Window[2]{Window(world_w, world_h, -4, 0, false), Window(world_w, 5, world_w-4, -(world_h/2)+2, false)};
 	Instance* player = instance_create(int(world_w/2)-1, int(world_h/2)+2, '@');
 	Instance* ghost = new Instance[4]{Instance(12, int(world_h/2)-2, 'O'), Instance(13, int(world_h/2)-2, 'O'), Instance(14, int(world_h/2)-2, 'O'), Instance(15, int(world_h/2)-2, 'O')};
+	win[1].m_fgcolor = C_BLUE;
 	ghost[0].m_fgcolor = C_RED;
 	ghost[1].m_fgcolor = C_MAGENTA;
 	ghost[2].m_fgcolor = C_CYAN;
 	ghost[3].m_fgcolor = C_YELLOW;
+	int prev_col[4]{};
+	for (int i = 0; i < 4; i++){
+		prev_col[i] = ghost[i].m_fgcolor;
+		ghost[i].m_bcolor = true;
+	}
+	int score{};
+	int state{};
+	int state_counter{};
 	
 	int tiles = (world_w-2)*(world_h-2);
 	Instance* tile = new Instance[tiles]{};
@@ -95,10 +105,11 @@ int main(){
 				if (tile[i-sep].get_sprite() == '.' || tile[i+sep].get_sprite() == '.' || tile[i-sep].get_sprite() == 'o'){
 					tile[i].set_sprite(ACS_HLINE);
 				}
-			}else if (tile[i-1].m_type == 1 || tile[i+1].m_type == 1){
+			}
+			if (tile[i-1].m_type == 1 || tile[i+1].m_type == 1){
 				if (tile[i+1].m_type == 0 || tile[i-1].m_type == 0 || tile[i].m_coordy == 1){
 					tile[i].set_sprite(ACS_VLINE);
-				}else if (tile[i-sep].m_type == 2 && tile[i+sep].m_type == 2){
+				}else if (tile[i-sep].m_type == 2 && tile[i+sep].m_type == 2 || tile[i].m_coordy == 1){
 					tile[i].set_sprite(ACS_VLINE);
 				}
 			}
@@ -114,6 +125,7 @@ int main(){
 	while (key != 'q') {
 		main_env->start_renderer();
 		win[0].clean();
+		win[1].clean();
 		//mvwhline(win[0].win, 10, 10, , 5);
 		key = getch();
 		temp_dir = dir; temp_spd = spd; temp_lim = lim;
@@ -166,6 +178,42 @@ int main(){
 			}
 			if (player->m_coordx == tile[i].m_coordx && tile[i].m_type == 1 && player->m_coordy == tile[i].m_coordy){
 				tile[i].m_coordx = -1;
+				if (tile[i].get_sprite() == '.'){
+					score += 10;
+				}else{
+					score += 50;
+					state = 1;
+				}
+			}
+		}
+		wattron(win[1].win, A_BOLD | COLOR_PAIR(C_YELLOW));
+		mvwprintw(win[1].win, 2, (world_w/2)-5, "Score: %i", score);
+		wattroff(win[1].win, A_BOLD | COLOR_PAIR(C_YELLOW));
+		if (state == 1 && state_counter < 40){
+			state_counter+=1;
+		}else if (state == 1 && state_counter == 40){
+			state = 0;
+		}else if (state == 0 && state_counter > 0 ){
+			state_counter--;
+		}
+		if (state_counter < 14 && state_counter > 0){
+			if (state_counter % 2){
+				win[0].m_bcolor = !win[0].m_bcolor;
+				win[1].m_bcolor = !win[1].m_bcolor;
+				for (int i = 0; i < 4; i++){
+					if (ghost[i].m_fgcolor != C_BLUE){
+						prev_col[i] = ghost[i].m_fgcolor;
+						ghost[i].m_fgcolor = C_BLUE;
+					}else{
+						ghost[i].m_fgcolor = prev_col[i];
+					}
+				}
+				for (int i = 0; i < tiles; i++){
+					if (tile[i].m_type == 2){
+						tile[i].m_bcolor = !tile[i].m_bcolor;
+					}
+				}
+			}else{
 			}
 		}
 		if (((player->get_coord(dir)-1 < 0) || (player->get_coord(dir)+1 > lim-1)) && player->m_coordy != 14){
