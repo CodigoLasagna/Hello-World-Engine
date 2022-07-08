@@ -1,5 +1,4 @@
 //nr
-#include <curses.h>
 #include <fstream>
 #include "../HelloWorldEngine.h"
 	
@@ -9,7 +8,7 @@ int main(){
 	int term_w = main_env->get_term_size('w'), term_h = main_env->get_term_size('h');
 	int world_w = 28, world_h = 31;
 	int xx{0}, yy{0};
-	Window* win = new Window[2]{Window(world_w, world_h, -4, 0, false), Window(world_w, 5, world_w-4, -(world_h/2)+2, false)};
+	Window* win = new Window[2]{Window(world_w, world_h, -13, 0, false), Window(world_w, 5, world_w-13, -(world_h/2)+2, false)};
 	Instance* player = instance_create(int(world_w/2)-1, int(world_h/2)+2, '@');
 	Instance* ghost = new Instance[4]{Instance(12, int(world_h/2)-2, 'O'), Instance(13, int(world_h/2)-2, 'O'), Instance(14, int(world_h/2)-2, 'O'), Instance(15, int(world_h/2)-2, 'O')};
 	win[1].m_fgcolor = C_BLUE;
