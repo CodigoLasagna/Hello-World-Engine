@@ -1,8 +1,7 @@
 //nr
-#include <curses.h>
 #include <fstream>
 #include "../HelloWorldEngine.h"
-
+	
 int main(){
 	char key{};
 	Renderer* main_env = new Renderer(1, 110);
@@ -52,8 +51,8 @@ int main(){
 				tile[count].set_sprite(' ');
 				tile[count].m_type = 0;
 			}else{
-				tile[count].set_sprite(ACS_HLINE);
-				tile[count].m_type = 3;
+				tile[count].set_sprite('#');
+				tile[count].m_type = 2;
 			}
 			tile[count].m_coordx = xx+1;
 			tile[count].m_coordy = yy+1;
@@ -65,64 +64,44 @@ int main(){
 		}
 		indata >> letter;
 	}
-	
+
+	int sep{world_w-2};
 	for (int i = 0; i < tiles; i++){
-		for (int j = 0; j < tiles; j++){
-			if (tile[i].get_sprite() == '#'){
-				if (tile[i].m_coordx-1 == tile[i-1].m_coordx && tile[i].m_coordy == tile[i-1].m_coordy){
-					if (tile[i].m_coordx+1 == tile[i+1].m_coordx && tile[i].m_coordy == tile[i+1].m_coordy){
-						if (tile[i-1].m_type == 2 && tile[i+1].m_type == 2 || ((tile[i-1].m_type == 2 && tile[i+1].m_type == 3) || (tile[i-1].m_type == 3 && tile[i+1].m_type == 2))){
-							if (tile[j].get_sprite() == '.' && tile[j].m_coordx == tile[i].m_coordx && tile[j].m_coordy-1 == tile[i].m_coordy){
-									tile[i].set_sprite(ACS_HLINE);
-							}else if (tile[j].get_sprite() == '.' && tile[j].m_coordx == tile[i].m_coordx && tile[j].m_coordy+1 == tile[i].m_coordy){
-								tile[i].set_sprite(ACS_HLINE);
-							}else{
-								if (tile[j].get_sprite() == '#' && tile[j].m_coordx == tile[i].m_coordx && tile[j].m_coordy-1 == tile[i].m_coordy){
-									if (tile[i-1].get_sprite() == ACS_HLINE && (tile[i-26].get_sprite() == ACS_HLINE || tile[i-26].get_sprite() == ACS_LRCORNER)){
-										tile[i].set_sprite(ACS_URCORNER);
-									}else if (tile[i-1].get_sprite() == ACS_URCORNER && tile[i-26].get_sprite() == ACS_HLINE){
-										tile[i].set_sprite(ACS_ULCORNER);
-									}else{
-										if ((tile[i-1].get_sprite() == ACS_HLINE || tile[i-1].get_sprite() == '#') && tile[i+1].get_sprite() == '#' && tile[i-26].get_sprite() == ACS_VLINE){
-											tile[i].set_sprite(ACS_LRCORNER);
-										}else if (tile[i-1].get_sprite() == ACS_VLINE && tile[i+26].get_sprite() == '#' && tile[i-26].get_sprite() != ACS_VLINE){
-											tile[i].set_sprite(ACS_ULCORNER);
-										}else{
-											tile[i].set_sprite(ACS_LLCORNER);
-										}
-									}
-								}
-							}
-						}else if (tile[i-1].m_type == 1 && tile[i+1].m_type == 2) {
-							if (tile[j].get_sprite() == '.' && tile[j].m_coordx == tile[i].m_coordx && tile[j].m_coordy+1 == tile[i].m_coordy){
-								tile[i].set_sprite(ACS_ULCORNER);
-							}else if (tile[j].get_sprite() == '.' && tile[j].m_coordx == tile[i].m_coordx && tile[j].m_coordy-1 == tile[i].m_coordy){
-								tile[i].set_sprite(ACS_LLCORNER);
-							}else{
-								if (tile[i-26].get_sprite() != '.' && tile[i+26].get_sprite() != '.'){
-									tile[i].set_sprite(ACS_VLINE);
-								}
-							}
-						}else if (tile[i-1].m_type == 2 && tile[i+1].m_type == 1) {
-							if (tile[j].get_sprite() == '.' && tile[j].m_coordx == tile[i].m_coordx && tile[j].m_coordy+1 == tile[i].m_coordy){
-								tile[i].set_sprite(ACS_URCORNER);
-							}else if (tile[j].get_sprite() == '.' && tile[j].m_coordx == tile[i].m_coordx && tile[j].m_coordy-1 == tile[i].m_coordy){
-								tile[i].set_sprite(ACS_LRCORNER);
-							}else{
-								if (tile[i-26].get_sprite() != '.' && tile[i+26].get_sprite() != '.'){
-									tile[i].set_sprite(ACS_VLINE);
-								}
-							}
-						}else{
-							tile[i].set_sprite(ACS_VLINE);
-						}
-					}
+		if (tile[i].get_sprite() == '#'){
+			if ((tile[i+1].get_sprite() == '.' && tile[i-sep].m_type == 1) || (tile[i+1].m_type == 2 && tile[i-sep].m_type == 2)){
+				if ((tile[i+sep-1].m_type == 1 || tile[i-sep+1].m_type == 1) && (tile[i+sep].m_type == 1 || tile[i-sep].get_sprite() == ACS_VLINE)){
+					tile[i].set_sprite(ACS_LLCORNER);
 				}
 			}
-		}
-	}
-	for (int i = 0; i < tiles; i++){
-		for (int j = 0; j < tiles; j++){
+			if ((tile[i-1].get_sprite() == '.' && tile[i-sep].m_type == 1) || (tile[i-1].m_type == 2 && tile[i-sep].m_type == 2)){
+				if ((tile[i+sep+1].m_type == 1 || tile[i-sep+1].m_type == 1) && (tile[i-sep].m_type == 1 || tile[i-sep].get_sprite() == ACS_HLINE || tile[i-sep].get_sprite() == ACS_LLCORNER)){
+					if (tile[i-(sep*2)].get_sprite() != 'o')
+						tile[i].set_sprite(ACS_ULCORNER);
+				}
+			}
+			if ((tile[i-1].get_sprite() == '.' && tile[i-sep].m_type == 1) || (tile[i-1].m_type == 2 && tile[i-sep].m_type == 2)){
+				if ((tile[i+sep+1].m_type == 1 || tile[i-sep-1].m_type == 1) && (tile[i+sep].m_type == 1 || tile[i-sep].get_sprite() == ACS_VLINE)){
+					if (tile[i-(sep*2)].get_sprite() != 'o')
+						tile[i].set_sprite(ACS_LRCORNER);
+				}
+			}
+			if ((tile[i+1].get_sprite() == '.' && tile[i-sep].m_type == 1) || (tile[i+1].m_type == 2 && tile[i-sep].m_type == 2)){
+				if ((tile[i+sep-1].m_type == 1 || tile[i-sep-1].m_type == 1) && (tile[i-sep].m_type == 1 || tile[i-sep].get_sprite() == ACS_HLINE || tile[i-sep].get_sprite() == ACS_LRCORNER)){
+					if (tile[i+sep].m_type != 0)
+						tile[i].set_sprite(ACS_URCORNER);
+				}
+			}
+			if ((tile[i-1].m_type == 2 || tile[i].m_coordx == 1) && (tile[i+1].get_sprite() == '#' || tile[i+sep].m_type == 0 || tile[i-sep].m_type == 0 || tile[i-(sep*2)].get_sprite() == 'o')){
+				if (tile[i-sep].get_sprite() == '.' || tile[i+sep].get_sprite() == '.' || tile[i-sep].get_sprite() == 'o'){
+					tile[i].set_sprite(ACS_HLINE);
+				}
+			}else if (tile[i-1].m_type == 1 || tile[i+1].m_type == 1){
+				if (tile[i+1].m_type == 0 || tile[i-1].m_type == 0 || tile[i].m_coordy == 1){
+					tile[i].set_sprite(ACS_VLINE);
+				}else if (tile[i-sep].m_type == 2 && tile[i+sep].m_type == 2){
+					tile[i].set_sprite(ACS_VLINE);
+				}
+			}
 		}
 	}
 	

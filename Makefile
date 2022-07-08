@@ -1,5 +1,5 @@
 CXX := g++
-CFLAGS := -Wall -g
+CFLAGS := -g
 LDLIBS := -lncurses -lpanel
 TARGET := main
 
@@ -14,6 +14,6 @@ $(TARGET): $(OBJS)
 clean:
 	rm -rf $(TARGET) *.o
 cleanO:
-	rm -rf $(TARGET).o
+	rm -rf *.o
 	
 .PHONY: all clean cleanO
