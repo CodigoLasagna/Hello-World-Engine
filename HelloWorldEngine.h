@@ -83,7 +83,7 @@ class Window{
 Instance* instance_create(int x, int y, chtype sprite);
 void instance_destroy(Instance* instance);
 
-void instance_draw(WINDOW*, Instance* instance);
+void instance_draw(Window, Instance* instance);
 
 void update();
 

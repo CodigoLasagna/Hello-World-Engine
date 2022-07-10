@@ -170,18 +170,18 @@ void instance_destroy(Instance* instance){
 	instance = nullptr;
 }
 
-void instance_draw(WINDOW* win, Instance* instance){
+void instance_draw(Window place, Instance* instance){
 	chtype s{instance->get_sprite()};
 	double temp_x{instance->get_coord('x')};
 	double temp_y{instance->get_coord('y')};
 	init_pair(instance->m_fgcolor, instance->m_fgcolor, instance->m_bgcolor);
 	if (instance->m_bcolor == false){
-		wattron(win, COLOR_PAIR(instance->m_fgcolor));
-		mvwaddch(win, temp_y, temp_x, s);
-		wattroff(win, COLOR_PAIR(instance->m_fgcolor));
+		wattron(place.win, COLOR_PAIR(instance->m_fgcolor));
+		mvwaddch(place.win, temp_y, temp_x, s);
+		wattroff(place.win, COLOR_PAIR(instance->m_fgcolor));
 	}else{
-		wattron(win, A_BOLD | COLOR_PAIR(instance->m_fgcolor));
-		mvwaddch(win, temp_y, temp_x, s);
-		wattroff(win, A_BOLD | COLOR_PAIR(instance->m_fgcolor));
+		wattron(place.win, A_BOLD | COLOR_PAIR(instance->m_fgcolor));
+		mvwaddch(place.win, temp_y, temp_x, s);
+		wattroff(place.win, A_BOLD | COLOR_PAIR(instance->m_fgcolor));
 	}
 }

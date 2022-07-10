@@ -52,8 +52,8 @@ int main(){
 		Window(menu_w, menu_h, 0, 0, 0)
 	};
 	
-	instance_draw(win[0].win, head);
-	instance_draw(win[0].win, pellet);
+	instance_draw(win[0], head);
+	instance_draw(win[0], pellet);
 	while (key != 'q') {
 		main_env->start_renderer();
 		win[0].clean();
@@ -76,12 +76,12 @@ int main(){
 			rand_p();
 		}
 		
-		instance_draw(win[0].win, pellet);
-		instance_draw(win[0].win, head);
+		instance_draw(win[0], pellet);
+		instance_draw(win[0], head);
 		for (int i = 1; i <= score; i ++){
 			prev_y[i] = body[i].m_coordy; prev_x[i] = body[i].m_coordx;
 			body[i].m_coordy = prev_y[i-1]; body[i].m_coordx = prev_x[i-1];
-			instance_draw(win[0].win, &body[i]);
+			instance_draw(win[0], &body[i]);
 			if (head->m_coordx == body[i].m_coordx && head->m_coordy == body[i].m_coordy){ collision = true; }
 		}
 		

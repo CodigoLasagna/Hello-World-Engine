@@ -91,14 +91,14 @@ int main(){
 		win[0].clean(); //  para borrar cualquier cosa que pueda duplicarse
 		win[1].clean(); //  de forma gráfica.
 		
-		instance_draw(win[0].win, &enemy[0]);// de esta manera dibujamos dentro de nuestros paneles
-		instance_draw(win[0].win, &enemy[1]);// declaramos en que espacio/ventana y luego en el caso de objetos
+		instance_draw(win[0], &enemy[0]);// de esta manera dibujamos dentro de nuestros paneles
+		instance_draw(win[0], &enemy[1]);// declaramos en que espacio/ventana y luego en el caso de objetos
 											 // en un array, referenciamos el objeto que queremos con & antes
 											 // de su nombre y número en el array.
-		instance_draw(win[1].win, player);// cuando se trata de objetos únicos ignoramos el & y colocamos el nombre
+		instance_draw(win[1], player);// cuando se trata de objetos únicos ignoramos el & y colocamos el nombre
 										  // sin más.
 		for (int i = 0; i < 10; i++){ //podemos aprovechar ciclos para dibujar objetos en un array
-			instance_draw(terminal.win, &wall[i]);//de la misma forma, tenemos que referenciarlos con &
+			instance_draw(terminal, &wall[i]);//de la misma forma, tenemos que referenciarlos con &
 		}
 		
 		player->m_coordx += 1;// y como mencionamos previamente, podemos cambiar valores de nuestros

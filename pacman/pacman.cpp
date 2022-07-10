@@ -170,7 +170,7 @@ int main(){
 		wattron(win[0].win, COLOR_PAIR(C_BLUE));
 		player->set_coord(dir, player->get_coord(dir) + spd);
 		for (int i = 0; i < tiles; i++){
-			instance_draw(win[0].win, &tile[i]);
+			instance_draw(win[0], &tile[i]);
 			if (player->m_coordx == tile[i].m_coordx && (tile[i].m_type >= 2 || tile[i].m_type == 0) && player->m_coordy == tile[i].m_coordy){
 				player->set_coord(dir, player->get_coord(dir) - spd);
 				spd = temp_spd; dir = temp_dir; lim = temp_lim;
@@ -220,9 +220,9 @@ int main(){
 		}
 		if (player->m_coordx >= world_w || player->m_coordx <= -1)
 			player->m_coordx -= (world_w)*(spd);
-		instance_draw(win[0].win, player);
+		instance_draw(win[0], player);
 		for (int i = 0; i < 4; i++){
-			instance_draw(win[0].win, &ghost[i]);
+			instance_draw(win[0], &ghost[i]);
 		}
 		main_env->update_renderer();
 	}
