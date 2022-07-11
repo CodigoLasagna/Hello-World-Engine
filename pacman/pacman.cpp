@@ -1,5 +1,4 @@
 //nr
-#include <cstdlib>
 #include <fstream>
 #include "../HelloWorldEngine.h"
 #include <random>
@@ -23,7 +22,7 @@ int main(){
 	bool turn_check{};
 	int prev_col[4]{};
 	int ghost_counter[4]{20, 20, 20, 20};
-	bool ghost_ticket[4]{0, 0, 0, 0};
+	bool ghost_ticket[4]{false, false, false, false};
 	int score_mult{1};
 	for (int i = 0; i < 4; i++){
 		prev_col[i] = ghost[i].m_fgcolor;
@@ -229,21 +228,28 @@ int main(){
 			}
 			for (int j = 0; j < 4; j++){
 				if ((player->m_coordx == ghost[j].m_coordx || player->m_coordx == ghost[j].m_coordx+spd) && (player->m_coordy == ghost[j].m_coordy || player->m_coordy == ghost[j].m_coordy+spd)){
-					if (state_counter == 0){
+					if (state_counter <= 1){ 
 						player->m_coordx = int(world_w/2);
 						player->m_coordy = int(world_h/2)+2;
 						spd = 0;
 						dir = 0;
 					}else{
-						ghost[j].m_coordx = int(world_w/2);
-						ghost[j].m_coordy = int(world_h/2)-1;
-						ghost[j].m_fgcolor = prev_col[j];
-						prev_col[j] = ghost[j].m_fgcolor;
-						ghost[j].m_fgcolor = C_WHITE;
-						ghost[j].m_type = 5;
-						ghost_ticket[j] = true;
-						score += (200*score_mult);
-						score_mult += 1;
+						if (ghost_ticket[j] == false){
+							ghost[j].m_coordx = int(world_w/2);
+							ghost[j].m_coordy = int(world_h/2)-1;
+							ghost[j].m_fgcolor = prev_col[j];
+							prev_col[j] = ghost[j].m_fgcolor;
+							ghost[j].m_fgcolor = C_WHITE;
+							ghost[j].m_type = 5;
+							ghost_ticket[j] = true;
+							score += (200*score_mult);
+							score_mult += 1;
+						}else{
+							player->m_coordx = int(world_w/2);
+							player->m_coordy = int(world_h/2)+2;
+							spd = 0;
+							dir = 0;
+						}
 					}
 				}
 				// right
