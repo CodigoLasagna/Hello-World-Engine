@@ -19,10 +19,16 @@ int main(){
 	ghost[1].m_fgcolor = C_MAGENTA;
 	ghost[2].m_fgcolor = C_CYAN;
 	ghost[3].m_fgcolor = C_YELLOW;
+	bool turn[4]{};
+	bool turn_check{};
 	int prev_col[4]{};
+	int ghost_counter[4]{20, 20, 20, 20};
+	bool ghost_ticket[4]{0, 0, 0, 0};
+	int score_mult{1};
 	for (int i = 0; i < 4; i++){
 		prev_col[i] = ghost[i].m_fgcolor;
 		ghost[i].m_bcolor = true;
+		ghost[i].m_type = 4;
 	}
 	int score{};
 	int state{};
@@ -62,6 +68,11 @@ int main(){
 			}else if (letter == ','){
 				tile[count].set_sprite(' ');
 				tile[count].m_type = 0;
+			}else if (letter == 'x'){
+				tile[count].set_sprite('.');
+				tile[count].m_type = -2;
+				tile[count].m_bcolor = true;
+				tile[count].m_fgcolor = C_YELLOW;
 			}else{
 				tile[count].set_sprite('#');
 				tile[count].m_type = 2;
@@ -81,24 +92,24 @@ int main(){
 	for (int i = 0; i < tiles; i++){
 		if (tile[i].get_sprite() == '#'){
 			if ((tile[i+1].get_sprite() == '.' && tile[i-sep].m_type == 1) || (tile[i+1].m_type == 2 && tile[i-sep].m_type == 2)){
-				if ((tile[i+sep-1].m_type == 1 || tile[i-sep+1].m_type == 1) && (tile[i+sep].m_type == 1 || tile[i-sep].get_sprite() == ACS_VLINE)){
+				if (((tile[i+sep-1].m_type == 1 || tile[i+sep-1].m_type == -2) || tile[i-sep+1].m_type == 1) && (tile[i+sep].m_type == 1 || tile[i-sep].get_sprite() == ACS_VLINE)){
 					tile[i].set_sprite(ACS_LLCORNER);
 				}
 			}
 			if ((tile[i-1].get_sprite() == '.' && tile[i-sep].m_type == 1) || (tile[i-1].m_type == 2 && tile[i-sep].m_type == 2)){
-				if ((tile[i+sep+1].m_type == 1 || tile[i-sep+1].m_type == 1) && (tile[i-sep].m_type == 1 || tile[i-sep].get_sprite() == ACS_HLINE || tile[i-sep].get_sprite() == ACS_LLCORNER)){
+				if (((tile[i+sep+1].m_type == 1 || tile[i+sep+1].m_type == -2) || tile[i-sep+1].m_type == 1) && (tile[i-sep].m_type == 1 || tile[i-sep].get_sprite() == ACS_HLINE || tile[i-sep].get_sprite() == ACS_LLCORNER)){
 					if (tile[i-(sep*2)].get_sprite() != 'o')
 						tile[i].set_sprite(ACS_ULCORNER);
 				}
 			}
 			if ((tile[i-1].get_sprite() == '.' && tile[i-sep].m_type == 1) || (tile[i-1].m_type == 2 && tile[i-sep].m_type == 2)){
-				if ((tile[i+sep+1].m_type == 1 || tile[i-sep-1].m_type == 1) && (tile[i+sep].m_type == 1 || tile[i-sep].get_sprite() == ACS_VLINE)){
+				if (((tile[i+sep+1].m_type == 1 || tile[i+sep+1].m_type == -2) || tile[i-sep-1].m_type == 1) && (tile[i+sep].m_type == 1 || tile[i-sep].get_sprite() == ACS_VLINE)){
 					if (tile[i-(sep*2)].get_sprite() != 'o')
 						tile[i].set_sprite(ACS_LRCORNER);
 				}
 			}
 			if ((tile[i+1].get_sprite() == '.' && tile[i-sep].m_type == 1) || (tile[i+1].m_type == 2 && tile[i-sep].m_type == 2)){
-				if ((tile[i+sep-1].m_type == 1 || tile[i-sep-1].m_type == 1) && (tile[i-sep].m_type == 1 || tile[i-sep].get_sprite() == ACS_HLINE || tile[i-sep].get_sprite() == ACS_LRCORNER)){
+				if (((tile[i+sep-1].m_type == 1 || tile[i+sep-1].m_type == -2) || tile[i-sep-1].m_type == 1) && (tile[i-sep].m_type == 1 || tile[i-sep].get_sprite() == ACS_HLINE || tile[i-sep].get_sprite() == ACS_LRCORNER)){
 					if (tile[i+sep].m_type != 0)
 						tile[i].set_sprite(ACS_URCORNER);
 				}
@@ -108,7 +119,7 @@ int main(){
 					tile[i].set_sprite(ACS_HLINE);
 				}
 			}
-			if (tile[i-1].m_type == 1 || tile[i+1].m_type == 1){
+			if ((tile[i-1].m_type == 1 || tile[i-1].m_type == -2) || (tile[i+1].m_type == 1 || tile[i+1].m_type == -2)){
 				if (tile[i+1].m_type == 0 || tile[i-1].m_type == 0 || tile[i].m_coordy == 1){
 					tile[i].set_sprite(ACS_VLINE);
 				}else if (tile[i-sep].m_type == 2 && tile[i+sep].m_type == 2 || tile[i].m_coordy == 1){
@@ -181,7 +192,7 @@ int main(){
 		wattron(win[0].win, COLOR_PAIR(C_BLUE));
 		player->set_coord(dir, player->get_coord(dir) + spd);
 		for (int i = 0; i < tiles; i++){
-			if (tile[i].m_type != -1){
+			if (tile[i].m_type != -1 && tile[i].m_type != -3){
 				instance_draw(win[0], &tile[i]);
 			}
 			if (player->m_coordx == tile[i].m_coordx && (tile[i].m_type >= 2 || tile[i].m_type == 0) && player->m_coordy == tile[i].m_coordy){
@@ -190,11 +201,15 @@ int main(){
 				wait_spd = spd; wait_dir = dir; wait_lim = lim;
 				spd = temp_spd; dir = temp_dir; lim = temp_lim;
 			}
-			if (player->m_coordx == tile[i].m_coordx && tile[i].m_type == 1 && player->m_coordy == tile[i].m_coordy){
-				tile[i].m_type = -1;
-				if (tile[i].get_sprite() == '.'){
+			if (player->m_coordx == tile[i].m_coordx && (tile[i].m_type == 1 || tile[i].m_type == -2) && player->m_coordy == tile[i].m_coordy){
+				if (tile[i].m_type == 1){
+					tile[i].m_type = -1;
+				}else if (tile[i].m_type == -2){
+					tile[i].m_type = -3;
+				}
+				if (tile[i].get_sprite() == '.' && spd != 0){
 					score += 10;
-				}else{
+				}else if (tile[i].get_sprite() == 'o' && spd != 0){
 					score += 50;
 					state = 1;
 				}
@@ -212,86 +227,206 @@ int main(){
 					}
 				}
 			}
-			
 			for (int j = 0; j < 4; j++){
-				rand_n = rand()%4;
-				if (ghost[j].m_coordx+1 == tile[i].m_coordx && ghost[j].m_coordy == tile[i].m_coordy && tile[i].m_type == 2 && ghost[j].m_type == 0){
-					while(rand_n == ghost[j].m_type){
-						rand_n = rand()%4;
+				if ((player->m_coordx == ghost[j].m_coordx || player->m_coordx == ghost[j].m_coordx+spd) && (player->m_coordy == ghost[j].m_coordy || player->m_coordy == ghost[j].m_coordy+spd)){
+					if (state_counter == 0){
+						player->m_coordx = int(world_w/2);
+						player->m_coordy = int(world_h/2)+2;
+						spd = 0;
+						dir = 0;
+					}else{
+						ghost[j].m_coordx = int(world_w/2);
+						ghost[j].m_coordy = int(world_h/2)-1;
+						ghost[j].m_fgcolor = prev_col[j];
+						prev_col[j] = ghost[j].m_fgcolor;
+						ghost[j].m_fgcolor = C_WHITE;
+						ghost[j].m_type = 5;
+						ghost_ticket[j] = true;
+						score += (200*score_mult);
+						score_mult += 1;
 					}
-					ghost[j].m_type = rand_n;
 				}
-				if (ghost[j].m_coordx-1 == tile[i].m_coordx && ghost[j].m_coordy == tile[i].m_coordy && tile[i].m_type == 2 && ghost[j].m_type == 1){
-					while(rand_n == ghost[j].m_type){
-						rand_n = rand()%4;
+				// right
+				if (ghost[j].m_type == 0 && ghost[j].m_coordx+1 == tile[i].m_coordx && ghost[j].m_coordy == tile[i].m_coordy && tile[i].m_type == 2){
+					turn[0] = false;
+					if (tile[i-2].m_type != 2) turn[1] = true;
+					if (tile[i+(sep-1)].m_type != 2) turn[2] = true;
+					if (tile[i-(sep+1)].m_type != 2) turn[3] = true;
+					turn_check = true;
+				}
+				// left
+				if (ghost[j].m_type == 1 && ghost[j].m_coordx-1 == tile[i].m_coordx && ghost[j].m_coordy == tile[i].m_coordy && tile[i].m_type == 2){
+					if (tile[i+2].m_type != 2) turn[0] = true;
+					turn[1] = false;
+					if (tile[i+(sep+1)].m_type != 2) turn[2] = true;
+					if (tile[i-(sep-1)].m_type != 2) turn[3] = true;
+					turn_check = true;
+				}
+				// down
+				if (ghost[j].m_type == 2 && ghost[j].m_coordx == tile[i].m_coordx && ghost[j].m_coordy+1 == tile[i].m_coordy && tile[i].m_type == 2){
+					if (tile[i-(sep+1)].m_type != 2) turn[0] = true;
+					if (tile[i-(sep-1)].m_type != 2) turn[1] = true;
+					turn[2] = false;
+					if (tile[i-(sep*2)].m_type != 2) turn[3] = true;
+					// tile[i-(sep+1)].set_sprite('X');
+					// tile[i-(sep-1)].set_sprite('X');
+					// tile[i-(sep*2)].set_sprite('X');
+					turn_check = true;
+				}
+				// up
+				if (ghost[j].m_type == 3 && ghost[j].m_coordx == tile[i].m_coordx && ghost[j].m_coordy-1 == tile[i].m_coordy && tile[i].m_type == 2){
+					if (tile[i+(sep+1)].m_type != 2) turn[0] = true;
+					if (tile[i+(sep-1)].m_type != 2) turn[1] = true;
+					if (tile[i+(sep*2)].m_type != 2) turn[2] = true;
+					turn[3] = false;
+					turn_check = true;
+				}
+				// if (ghost[j].m_coordx == tile[i].m_coordx && ghost[j].m_coordy == tile[i].m_coordy){
+				// 	if (tile[i+1].m_type != 2) turn[0] = true;
+				// 	if (tile[i-1].m_type != 2) turn[1] = true;
+				// 	if (tile[i+sep].m_type != 2) turn[2] = true;
+				// 	if (tile[i-sep].m_type != 2) turn[3] = true;
+				// 	turn_check = true;
+				// }
+				// right border
+				if (ghost[j].m_coordx >= world_w-2 && ghost[j].m_type == 0 && tile[i].m_coordx == ghost[j].m_coordx && tile[i].m_coordy == ghost[j].m_coordy){
+					if (ghost[j].m_coordy != 14)
+						turn[0] = false;
+					if (tile[i-1].m_type != 2) turn[1] = true;
+					if (tile[i+sep].m_type != 2) turn[2] = true;
+					if (tile[i-sep].m_type != 2) turn[3] = true;
+					if (ghost[j].m_coordy != 14)
+						turn_check = true;
+				}
+				// left border
+				if (ghost[j].m_coordx <= 1 && ghost[j].m_type == 1 && tile[i].m_coordx == ghost[j].m_coordx && tile[i].m_coordy == ghost[j].m_coordy){
+					if (tile[i+1].m_type != 2) turn[0] = true;
+					if (ghost[j].m_coordy != 14)
+						turn[1] = false;
+					if (tile[i+sep].m_type != 2) turn[2] = true;
+					if (tile[i-sep].m_type != 2) turn[3] = true;
+					if (ghost[j].m_coordy != 14)
+						turn_check = true;
+				}
+				// down border
+				if (ghost[j].m_coordy >= world_h-2 && ghost[j].m_type == 2 && tile[i].m_coordx == ghost[j].m_coordx && tile[i].m_coordy == ghost[j].m_coordy){
+					if (tile[i+1].m_type != 2) turn[0] = true;
+					if (tile[i-1].m_type != 2) turn[1] = true;
+					turn[2] = false;
+					if (tile[i-sep].m_type != 2) turn[3] = true;
+					turn_check = true;
+				}
+				// up border
+				if (ghost[j].m_coordy <= 1 && ghost[j].m_type == 3 && tile[i].m_coordx == ghost[j].m_coordx && tile[i].m_coordy == ghost[j].m_coordy){
+					if (tile[i+1].m_type != 2) turn[0] = true;
+					if (tile[i-1].m_type != 2) turn[1] = true;
+					if (tile[i+sep].m_type != 2) turn[2] = true;
+					turn[3] = false;
+					turn_check = true;
+				}
+				if (ghost[j].m_coordx == tile[i].m_coordx && ghost[j].m_coordy == tile[i].m_coordy && (tile[i].m_type == -2 || tile[i].m_type == -3)){
+					if (tile[i+1].m_type != 2) turn[0] = true;
+					if (tile[i-1].m_type != 2) turn[1] = true;
+					if (tile[i+sep].m_type != 2) turn[2] = true;
+					if (tile[i-sep].m_type != 2) turn[3] = true;
+					turn_check = true;
+				}
+				if (ghost[j].m_coordy != 14){
+					if (ghost[j].m_coordx+1 >= world_w-2) turn[0] = false;
+					if (ghost[j].m_coordx-1 <= 1) turn[1] = false;
+				}
+				if (ghost[j].m_coordy == 14){
+					if(ghost[j].m_coordx > world_w){
+						ghost[j].m_coordx = -1;
+					}else if(ghost[j].m_coordx < -1){
+						ghost[j].m_coordx = world_w;
 					}
-					ghost[j].m_type = rand_n;
 				}
-				if (ghost[j].m_coordx == tile[i].m_coordx && ghost[j].m_coordy+1 == tile[i].m_coordy && tile[i].m_type == 2 && ghost[j].m_type == 2){
-					while(rand_n == ghost[j].m_type){
-						rand_n = rand()%4;
+				if (ghost[j].m_coordy+1 >= world_h-2) turn[2] = false;
+				if (ghost[j].m_coordy-1 <= 1) turn[3] = false;
+				
+				while (turn_check == true) {
+					for (int c = 0; c < 4; c++){
+						if (turn[c] == true){
+							if ((rand()%100) == 0){
+								ghost[j].m_type = c;
+								turn_check = false;
+							}
+						}
 					}
-					ghost[j].m_type = rand_n;
 				}
-				if (ghost[j].m_coordx == tile[i].m_coordx && ghost[j].m_coordy-1 == tile[i].m_coordy && tile[i].m_type == 2 && ghost[j].m_type == 3){
-					while(rand_n == ghost[j].m_type){
-						rand_n = rand()%4;
-					}
-					ghost[j].m_type = rand_n;
+				for (int c = 0; c < 4; c++){
+					turn[c] = false;
 				}
-		}
 			}
+		}
 		for (int i = 0; i < 4; i++){
 			switch (ghost[i].m_type) {
 				case(0):
-					rand_n = rand()%4;
-					if (ghost[i].m_coordx < world_w-2){
-						ghost[i].m_coordx += 1;
-					}else{
-						while(rand_n == ghost[i].m_type){
-							rand_n = rand()%4;
-						}
-						ghost[i].m_type = rand_n;
-					}
+					ghost[i].m_coordx += 1;
 					break;
 				case(1):
-					rand_n = rand()%4;
-					if (ghost[i].m_coordx > 1){
-						ghost[i].m_coordx -= 1;
-					}else{
-						while(rand_n == ghost[i].m_type){
-							rand_n = rand()%4;
-						}
-						ghost[i].m_type = rand_n;
-					}
+					ghost[i].m_coordx -= 1;
 					break;
 				case(2):
-					rand_n = rand()%4;
-					if (ghost[i].m_coordy < world_h-2){
-						ghost[i].m_coordy += 1;
-					}else{
-						while(rand_n == ghost[i].m_type){
-							rand_n = rand()%4;
-						}
-						ghost[i].m_type = rand_n;
-					}
+					ghost[i].m_coordy += 1;
 					break;
 				case(3):
-					rand_n = rand()%4;
-					if (ghost[i].m_coordy > 1){
-						ghost[i].m_coordy -= 1;
-					}else{
-						while(rand_n == ghost[i].m_type){
-							rand_n = rand()%4;
-						}
-						ghost[i].m_type = rand_n;
-					}
+					ghost[i].m_coordy -= 1;
 					break;
 			}
-			if (ghost[i].m_coordx > world_w){
-				ghost[i].m_coordx = 0;
-			}
 		}
+		// for (int i = 0; i < 4; i++){
+		// 	switch (ghost[i].m_type) {
+		// 		case(0):
+		// 			rand_n = rand()%4;
+		// 			if (ghost[i].m_coordx < world_w-2){
+		// 				ghost[i].m_coordx += 1;
+		// 			}else{
+		// 				while(rand_n == ghost[i].m_type){
+		// 					rand_n = rand()%4;
+		// 				}
+		// 				ghost[i].m_type = rand_n;
+		// 			}
+		// 			break;
+		// 		case(1):
+		// 			rand_n = rand()%4;
+		// 			if (ghost[i].m_coordx > 1){
+		// 				ghost[i].m_coordx -= 1;
+		// 			}else{
+		// 				while(rand_n == ghost[i].m_type){
+		// 					rand_n = rand()%4;
+		// 				}
+		// 				ghost[i].m_type = rand_n;
+		// 			}
+		// 			break;
+		// 		case(2):
+		// 			rand_n = rand()%4;
+		// 			if (ghost[i].m_coordy < world_h-2){
+		// 				ghost[i].m_coordy += 1;
+		// 			}else{
+		// 				while(rand_n == ghost[i].m_type){
+		// 					rand_n = rand()%4;
+		// 				}
+		// 				ghost[i].m_type = rand_n;
+		// 			}
+		// 			break;
+		// 		case(3):
+		// 			rand_n = rand()%4;
+		// 			if (ghost[i].m_coordy > 1){
+		// 				ghost[i].m_coordy -= 1;
+		// 			}else{
+		// 				while(rand_n == ghost[i].m_type){
+		// 					rand_n = rand()%4;
+		// 				}
+		// 				ghost[i].m_type = rand_n;
+		// 			}
+		// 			break;
+		// 	}
+		// 	if (ghost[i].m_coordx > world_w){
+		// 		ghost[i].m_coordx = 0;
+		// 	}
+		// }
 		
 		wattron(win[1].win, A_BOLD | COLOR_PAIR(C_YELLOW));
 		mvwprintw(win[1].win, 2, (world_w/2)-5, "Score: %i", score);
@@ -303,16 +438,16 @@ int main(){
 		}else if (state == 0 && state_counter > 0 ){
 			state_counter--;
 		}
-		if (state_counter < 14 && state_counter > 0){
+		if (state_counter < 14 && state_counter >= 0){
 			if (state_counter % 2){
 				win[0].m_bcolor = !win[0].m_bcolor;
 				win[1].m_bcolor = !win[1].m_bcolor;
 				for (int i = 0; i < 4; i++){
-					if (ghost[i].m_fgcolor != C_BLUE){
-						prev_col[i] = ghost[i].m_fgcolor;
+					if (ghost[i].m_fgcolor != C_BLUE && ghost_ticket[i] == false){
 						ghost[i].m_fgcolor = C_BLUE;
-					}else{
+					}else if (ghost[i].m_fgcolor == C_BLUE && ghost_ticket[i] == false){
 						ghost[i].m_fgcolor = prev_col[i];
+						prev_col[i] = ghost[i].m_fgcolor;
 					}
 				}
 				for (int i = 0; i < tiles; i++){
@@ -320,8 +455,13 @@ int main(){
 						tile[i].m_bcolor = !tile[i].m_bcolor;
 					}
 				}
-			}else{
 			}
+		if (state_counter == 0){
+			score_mult = 1;
+			for (int i = 0; i < 4; i++){
+				ghost_ticket[i] = false;
+			}
+		}
 		}
 		if (((player->get_coord(dir)-1 < 0) || (player->get_coord(dir)+1 > lim-1)) && player->m_coordy != 14){
 			player->set_coord(dir, player->get_coord(dir) - spd);
@@ -330,6 +470,24 @@ int main(){
 			player->m_coordx -= (world_w)*(spd);
 		instance_draw(win[0], player);
 		for (int i = 0; i < 4; i++){
+			if (spd != 0 && ghost[i].m_type == 4){
+				if (ghost[i].m_coordx < 13 ){
+					ghost[i].m_coordx += 1;
+				}else if (ghost[i].m_coordx > 14 ){
+					ghost[i].m_coordx -= 1;
+				}else if (ghost[i].m_coordy > int(world_h/2)-4 ){
+					ghost[i].m_coordy -= 1;
+				}else if ((ghost[i].m_coordx == 13 || ghost[i].m_coordx == 14) && ghost[i].m_coordy == int(world_h/2)-4 ){
+					ghost[i].m_type = int(rand()%4);
+				}
+			}
+			if (ghost[i].m_type == 5){
+				ghost_counter[i]--;
+			} if (ghost_counter[i] == 0){
+				ghost[i].m_type = 4;
+				ghost[i].m_fgcolor = prev_col[i];
+				ghost_counter[i] = 20;
+			}
 			instance_draw(win[0], &ghost[i]);
 		}
 		main_env->update_renderer();
