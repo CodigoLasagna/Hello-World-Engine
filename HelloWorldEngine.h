@@ -21,7 +21,6 @@
 
 class Instance{
 private:
-	bool m_solid{};
 	chtype m_sprite{'#'};
 public:
 	int m_type{};

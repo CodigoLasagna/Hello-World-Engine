@@ -6,18 +6,46 @@
 int main(){
 	srand(time(NULL));
 	char key{};
-	Renderer* main_env = new Renderer(1, 110);
+	Renderer* main_env = new Renderer(1, 120);
 	int term_w = main_env->get_term_size('w'), term_h = main_env->get_term_size('h');
 	int world_w = 28, world_h = 31;
 	int xx{0}, yy{0};
-	Window* win = new Window[2]{Window(world_w, world_h, -13, 0, false), Window(world_w, 5, world_w-13, -(world_h/2)+2, false)};
+	Window* errorM = new Window(term_w, term_h, 0, 0, 0);
+	while ((term_w < world_w+22) || (term_h < world_h+2)){
+		errorM->clean();
+		key = getch();
+		main_env->update_env_size();
+		term_w = main_env->get_term_size('w');
+		term_h = main_env->get_term_size('h');
+		mvwprintw(errorM->win, term_h/2, (term_w/2)-12, "Incorrect Terminal size");
+		mvwprintw(errorM->win, (term_h/2)+1, (term_w/2)-9, "Current [%i, %i]", int(term_w), int(term_h));
+		mvwprintw(errorM->win, (term_h/2)+2, (term_w/2)-8, "Needed [%i, %i]", int(world_w), int(world_h+20));
+		update_panels();
+		doupdate();
+		if (key == 'q'){
+			endwin();
+			return 0;
+		}
+	}
+	errorM->show(false);
+	Window* win = new Window[2]{Window(world_w, world_h, -9, 0, false), Window(20, 7, world_w-13, -(world_h/2)+3, false)};
 	Instance* player = instance_create(int(world_w/2), int(world_h/2)+2, '@');
 	Instance* ghost = new Instance[4]{Instance(12, int(world_h/2)-1, 'O'), Instance(13, int(world_h/2)-1, 'O'), Instance(14, int(world_h/2)-1, 'O'), Instance(15, int(world_h/2)-1, 'O')};
+	Instance* fruits = instance_create(world_w/2, (world_h/2)+2, '%');
+	fruits->m_fgcolor = C_RED;
+	fruits->m_bcolor = true;
+	int fruit_counter{};
+	int fruit_mult{1};
+	int tiles = (world_w-2)*(world_h-2);
+	int pellets_oldx[tiles];
+	fruits->set_sprite(ACS_DIAMOND);
+	int pellets_count{};
 	win[1].m_fgcolor = C_BLUE;
 	ghost[0].m_fgcolor = C_RED;
 	ghost[1].m_fgcolor = C_MAGENTA;
 	ghost[2].m_fgcolor = C_CYAN;
 	ghost[3].m_fgcolor = C_YELLOW;
+	int lives = 2;
 	bool turn[4]{};
 	bool turn_check{};
 	int prev_col[4]{};
@@ -33,7 +61,6 @@ int main(){
 	int state{};
 	int state_counter{};
 	
-	int tiles = (world_w-2)*(world_h-2);
 	Instance* tile = new Instance[tiles]{};
 	std::string filename("map.txt");
 	std::ifstream indata;
@@ -78,6 +105,7 @@ int main(){
 			}
 			tile[count].m_coordx = xx+1;
 			tile[count].m_coordy = yy+1;
+			pellets_oldx[count] = xx+1;
 			count++;
 			xx++;
 		}else{
@@ -86,7 +114,7 @@ int main(){
 		}
 		indata >> letter;
 	}
-
+	
 	int sep{world_w-2};
 	for (int i = 0; i < tiles; i++){
 		if (tile[i].get_sprite() == '#'){
@@ -140,7 +168,6 @@ int main(){
 		main_env->start_renderer();
 		win[0].clean();
 		win[1].clean();
-		//mvwhline(win[0].win, 10, 10, , 5);
 		key = getch();
 		temp_dir = dir; temp_spd = spd; temp_lim = lim;
 		switch (key) {
@@ -168,6 +195,58 @@ int main(){
 				lim = world_w;
 				wait = false;
 				break;
+			case('r'):
+				player->m_coordx = int(world_w/2);
+				player->m_coordy = int(world_h/2)+2;
+				for (int i = 0; i < 4; i++){
+					ghost[i].m_coordx = int((world_w/2)-2)+i;
+					ghost[i].m_coordy = int((world_h/2)-1);
+					ghost[i].m_type = 4;
+				}
+				for (int i = 0; i < tiles; i++){
+					if (tile[i].m_type == -1){
+						tile[i].m_type = 1;
+					}
+					if (tile[i].m_type == -3){
+						tile[i].m_type = -2;
+					}
+				}
+				spd = 0;
+				wait = false;
+				score = 0;
+				lives = 2;
+				pellets_count = 0;
+				fruit_mult = 1;
+				break;
+		}
+		if (pellets_count == 57){
+			fruits->m_type = 1;
+			fruit_counter = 60;
+		}else if (pellets_count == 114){
+			fruits->m_type = 1;
+			fruit_counter = 60;
+			fruits->m_fgcolor = C_BLUE;
+		}else if (pellets_count == 171){
+			fruits->m_type = 1;
+			fruit_counter = 60;
+			fruits->m_fgcolor = C_GREEN;
+		}else if (pellets_count == 228){
+			fruits->m_type = 1;
+			fruit_counter = 60;
+			fruits->m_fgcolor = C_MAGENTA;
+		}else if (pellets_count == 285){
+			fruits->m_type = 1;
+			fruit_counter = 60;
+			fruits->m_fgcolor = C_YELLOW;
+		}
+		if (player->m_coordx == fruits->m_coordx && player->m_coordy == fruits->m_coordy && fruits->m_type == 1){
+			fruits->m_type = 0;
+			fruit_mult++;
+		}
+		if (fruit_counter > 0){
+			fruit_counter--;
+		}else {
+			fruits->m_type = 0;
 		}
 		wattron(win[0].win, COLOR_PAIR(C_BLUE));
 		mvwaddch(win[0].win, 0, 13, ACS_URCORNER);
@@ -189,10 +268,34 @@ int main(){
 		mvwaddch(win[0].win, 24, world_w-1, ACS_RTEE);
 		mvwaddch(win[0].win, 25, world_w-1, ACS_RTEE);
 		wattron(win[0].win, COLOR_PAIR(C_BLUE));
+		if (pellets_count == 297){
+			player->m_coordx = int(world_w/2);
+			player->m_coordy = int(world_h/2)+2;
+			for (int i = 0; i < 4; i++){
+				ghost[i].m_coordx = int((world_w/2)-2)+i;
+				ghost[i].m_coordy = int((world_h/2)-1);
+				ghost[i].m_type = 4;
+			}
+			for (int i = 0; i < tiles; i++){
+				if (tile[i].m_type == -1){
+					tile[i].m_type = 1;
+				}
+				if (tile[i].m_type == -3){
+					tile[i].m_type = -2;
+				}
+			}
+			spd = 0;
+			wait = false;
+			pellets_count = 0;
+			fruit_mult = 1;
+		}
 		player->set_coord(dir, player->get_coord(dir) + spd);
 		for (int i = 0; i < tiles; i++){
 			if (tile[i].m_type != -1 && tile[i].m_type != -3){
-				instance_draw(win[0], &tile[i]);
+				if (tile[i].m_type == 2)
+					instance_draw(win[0], &tile[i]);
+				if ((tile[i].m_type == 1 || tile[i].m_type == -2) && lives > 0)
+					instance_draw(win[0], &tile[i]);
 			}
 			if (player->m_coordx == tile[i].m_coordx && (tile[i].m_type >= 2 || tile[i].m_type == 0) && player->m_coordy == tile[i].m_coordy){
 				player->set_coord(dir, player->get_coord(dir) - spd);
@@ -207,9 +310,11 @@ int main(){
 					tile[i].m_type = -3;
 				}
 				if (tile[i].get_sprite() == '.' && spd != 0){
-					score += 10;
+					score += 10*fruit_mult;
+					pellets_count++;
 				}else if (tile[i].get_sprite() == 'o' && spd != 0){
-					score += 50;
+					score += 50*fruit_mult;
+					pellets_count++;
 					state = 1;
 				}
 			}
@@ -232,7 +337,13 @@ int main(){
 						player->m_coordx = int(world_w/2);
 						player->m_coordy = int(world_h/2)+2;
 						spd = 0;
-						dir = 0;
+						wait = false;
+						lives--;
+						for (int k = 0; k < 4; k++){
+							ghost[k].m_coordx = int((world_w/2)-2)+k;
+							ghost[k].m_coordy = int((world_h/2)-1);
+							ghost[k].m_type = 4;
+						}
 					}else{
 						if (ghost_ticket[j] == false){
 							ghost[j].m_coordx = int(world_w/2);
@@ -242,7 +353,7 @@ int main(){
 							ghost[j].m_fgcolor = C_WHITE;
 							ghost[j].m_type = 5;
 							ghost_ticket[j] = true;
-							score += (200*score_mult);
+							score += (200*score_mult)*fruit_mult;
 							score_mult += 1;
 						}else{
 							player->m_coordx = int(world_w/2);
@@ -274,9 +385,6 @@ int main(){
 					if (tile[i-(sep-1)].m_type != 2) turn[1] = true;
 					turn[2] = false;
 					if (tile[i-(sep*2)].m_type != 2) turn[3] = true;
-					// tile[i-(sep+1)].set_sprite('X');
-					// tile[i-(sep-1)].set_sprite('X');
-					// tile[i-(sep*2)].set_sprite('X');
 					turn_check = true;
 				}
 				// up
@@ -287,13 +395,6 @@ int main(){
 					turn[3] = false;
 					turn_check = true;
 				}
-				// if (ghost[j].m_coordx == tile[i].m_coordx && ghost[j].m_coordy == tile[i].m_coordy){
-				// 	if (tile[i+1].m_type != 2) turn[0] = true;
-				// 	if (tile[i-1].m_type != 2) turn[1] = true;
-				// 	if (tile[i+sep].m_type != 2) turn[2] = true;
-				// 	if (tile[i-sep].m_type != 2) turn[3] = true;
-				// 	turn_check = true;
-				// }
 				// right border
 				if (ghost[j].m_coordx >= world_w-2 && ghost[j].m_type == 0 && tile[i].m_coordx == ghost[j].m_coordx && tile[i].m_coordy == ghost[j].m_coordy){
 					if (ghost[j].m_coordy != 14)
@@ -382,60 +483,12 @@ int main(){
 					break;
 			}
 		}
-		// for (int i = 0; i < 4; i++){
-		// 	switch (ghost[i].m_type) {
-		// 		case(0):
-		// 			rand_n = rand()%4;
-		// 			if (ghost[i].m_coordx < world_w-2){
-		// 				ghost[i].m_coordx += 1;
-		// 			}else{
-		// 				while(rand_n == ghost[i].m_type){
-		// 					rand_n = rand()%4;
-		// 				}
-		// 				ghost[i].m_type = rand_n;
-		// 			}
-		// 			break;
-		// 		case(1):
-		// 			rand_n = rand()%4;
-		// 			if (ghost[i].m_coordx > 1){
-		// 				ghost[i].m_coordx -= 1;
-		// 			}else{
-		// 				while(rand_n == ghost[i].m_type){
-		// 					rand_n = rand()%4;
-		// 				}
-		// 				ghost[i].m_type = rand_n;
-		// 			}
-		// 			break;
-		// 		case(2):
-		// 			rand_n = rand()%4;
-		// 			if (ghost[i].m_coordy < world_h-2){
-		// 				ghost[i].m_coordy += 1;
-		// 			}else{
-		// 				while(rand_n == ghost[i].m_type){
-		// 					rand_n = rand()%4;
-		// 				}
-		// 				ghost[i].m_type = rand_n;
-		// 			}
-		// 			break;
-		// 		case(3):
-		// 			rand_n = rand()%4;
-		// 			if (ghost[i].m_coordy > 1){
-		// 				ghost[i].m_coordy -= 1;
-		// 			}else{
-		// 				while(rand_n == ghost[i].m_type){
-		// 					rand_n = rand()%4;
-		// 				}
-		// 				ghost[i].m_type = rand_n;
-		// 			}
-		// 			break;
-		// 	}
-		// 	if (ghost[i].m_coordx > world_w){
-		// 		ghost[i].m_coordx = 0;
-		// 	}
-		// }
 		
 		wattron(win[1].win, A_BOLD | COLOR_PAIR(C_YELLOW));
-		mvwprintw(win[1].win, 2, (world_w/2)-5, "Score: %i", score);
+		mvwprintw(win[1].win, 2, 2, "Score: %i", score);
+		for (int i = 0; i < lives; i++){
+			mvwaddch(win[1].win, 4, 2+(i*2), '@');
+		}
 		wattroff(win[1].win, A_BOLD | COLOR_PAIR(C_YELLOW));
 		if (state == 1 && state_counter < 40){
 			state_counter+=1;
@@ -474,7 +527,8 @@ int main(){
 		}
 		if (player->m_coordx >= world_w || player->m_coordx <= -1)
 			player->m_coordx -= (world_w)*(spd);
-		instance_draw(win[0], player);
+		if (lives != 0)
+			instance_draw(win[0], player);
 		for (int i = 0; i < 4; i++){
 			if (spd != 0 && ghost[i].m_type == 4){
 				if (ghost[i].m_coordx < 13 ){
@@ -494,7 +548,11 @@ int main(){
 				ghost[i].m_fgcolor = prev_col[i];
 				ghost_counter[i] = 20;
 			}
-			instance_draw(win[0], &ghost[i]);
+			if (fruits->m_type == 1){
+				instance_draw(win[0], fruits);
+			}
+			if (lives != 0)
+				instance_draw(win[0], &ghost[i]);
 		}
 		main_env->update_renderer();
 	}
