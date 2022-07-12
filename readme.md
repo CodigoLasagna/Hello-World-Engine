@@ -1,7 +1,7 @@
 # README
 ## Hello World Engine
 ### Readme pendiente de actualizar
-# Preview
+#### Pac-Man hecho con este motor(libreria).
 ![](https://github.com/CodigoLasagna/Hello-World-Engine/blob/master/pacman/preview.gif)
 
 ```
