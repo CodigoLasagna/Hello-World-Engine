@@ -1,6 +1,8 @@
 # README
 ## Hello World Engine
 ### Readme pendiente de actualizar
+#### Preview
+![Alt Text](https://github.com/CodigoLasagna/Hello-World-Engine/blob/master/pacman/preview.gif)
 ```
 Este es un motor gráfico creado con la finalidad de permitir el diseño y estructuración
 de juegos para su ejecución dentro de una terminal en báse a caracteres de texto.
