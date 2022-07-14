@@ -68,6 +68,7 @@ class Window{
 	public:
 		int m_width = 10;
 		int m_height = 10;
+		int m_x{}, m_y{};
 		int m_fgcolor{};
 		int m_bgcolor{-1};
 		bool m_bcolor{};

@@ -1,4 +1,5 @@
 #include "HelloWorldEngine.h" 
+#include <curses.h>
 
 Instance::Instance(){}
 
@@ -81,6 +82,8 @@ void Renderer::load_curses(){
 }
 
 void Renderer::start_renderer(){
+	clear();
+	erase();
 	if (m_type == 0 ){
 		m_old_time = m_new_time;
 	}else if (m_type == 1){
@@ -104,6 +107,7 @@ void Renderer::update_renderer(){
 		update_panels();
 		doupdate();
 	}
+	refresh();
 }
 
 int Renderer::get_rtype(){
@@ -127,12 +131,12 @@ int Renderer::get_term_size(char name){
 }
 
 Window::Window(int width, int height, int x, int y, bool fix):
-	m_width(width), m_height(height){
+	m_width(width), m_height(height), m_x(x), m_y(y){
 	getmaxyx(stdscr, term_h, term_w);
 	if (fix == false){
-		win = newwin(m_height, m_width, y+int(term_h/2)-(m_height/2), x+int(term_w/2)-(m_width/2));
+		win = newwin(m_height, m_width, m_y+int(term_h/2)-(m_height/2), m_x+int(term_w/2)-(m_width/2));
 	}else{
-		win = newwin(m_height, m_width, y, x);
+		win = newwin(m_height, m_width, m_y, m_x);
 	}
 	pane = new_panel(win);
 	clean();
@@ -145,8 +149,16 @@ void Window::show(bool s){
 	}
 }
 void Window::clean(){
+	getmaxyx(stdscr, term_h, term_w);
 	werase(win);
+	mvwin(win, m_y+int(term_h/2)-(m_height/2), m_x+int(term_w/2)-(m_width/2));
+	wresize(win, m_height, m_width);
 	init_pair(m_fgcolor, m_fgcolor, m_bgcolor);
+	if (term_h < m_height+2 || term_w < m_width+2){
+		show(false);
+	}else{
+		show(true);
+	}
 	if (m_bcolor == false){
 		wattron(win, COLOR_PAIR(m_fgcolor));
 		box(win, 0, 0);
