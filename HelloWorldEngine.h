@@ -50,10 +50,10 @@ private:
 	int m_type{};	// [type 0 == no_sleeptime] [type 1 == sleeptypem] [type 2 == wait for command]
 	void load_curses();
 public:
-	Renderer();
-	Renderer(int type);
-	Renderer(int type, int wtime);
-	void update_env_size();
+	size_t m_min_width{20}, m_min_height{20};
+	Renderer() = default;
+	Renderer(int type, size_t minw, size_t minh);
+	Renderer(int type, size_t minw, size_t minh, int wtime);
 	int get_term_size(char name);
 	void start_renderer();
 	void update_renderer();
@@ -66,6 +66,7 @@ class Window{
 	private:
 		int term_w{}, term_h{};
 	public:
+		Renderer* mainRender;
 		int m_width = 10;
 		int m_height = 10;
 		int m_x{}, m_y{};
@@ -74,7 +75,7 @@ class Window{
 		bool m_bcolor{};
 		WINDOW* win;
 		PANEL* pane;
-		Window(int width, int height, int x, int y, bool fix);
+		Window(int width, int height, int x, int y, bool fix, Renderer* render);
 		void show(bool s);
 		void clean();
 		~Window() = default;

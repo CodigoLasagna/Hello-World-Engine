@@ -6,7 +6,7 @@ void inputs();
 void restart();
 void rand_p();
 
-Renderer* main_env = new Renderer(1, 65);
+Renderer* main_env = new Renderer(1, 64, 38, 65);
 int world_w{}, world_h{};
 char key{};
 char coord{'x'};
@@ -21,24 +21,8 @@ Instance* pellet = instance_create(0, 0, '*');
 int main(){
 	double term_w = main_env->get_term_size('w'), term_h = main_env->get_term_size('h');
 	int menu_w = 22, menu_h = 11;
-	Window* errorM = new Window(term_w, term_h, 0, 0, 0);
+	Window* errorM = new Window(term_w, term_h, 0, 0, 0, main_env);
 	world_w = 60, world_h = 33;
-	while ((term_w < world_w) || (term_h < world_h+4)){
-		errorM->clean();
-		key = getch();
-		main_env->update_env_size();
-		term_w = main_env->get_term_size('w');
-		term_h = main_env->get_term_size('h');
-		mvwprintw(errorM->win, term_h/2, (term_w/2)-12, "Incorrect Terminal size");
-		mvwprintw(errorM->win, (term_h/2)+1, (term_w/2)-9, "Current [%i, %i]", int(term_w), int(term_h));
-		mvwprintw(errorM->win, (term_h/2)+2, (term_w/2)-8, "Needed [%i, %i]", int(world_w), int(world_h+4));
-		update_panels();
-		doupdate();
-		if (key == 'q'){
-			endwin();
-			return 0;
-		}
-	}
 	errorM->show(false);
 	int total_b = world_w*world_h;
 	srand(time(NULL));
@@ -47,9 +31,9 @@ int main(){
 	head->m_coordx = int(world_w/2), head->m_coordy = int(world_h/2);
 	rand_p();
 	Window* win = new Window[3]{
-		Window(world_w, world_h, 0, 1, 0),
-		Window(world_w, 3, 0, -(world_h/2)-1, 0),
-		Window(menu_w, menu_h, 0, 0, 0)
+		Window(world_w, world_h, 0, 1, 0, main_env),
+		Window(world_w, 3, 0, -(world_h/2)-1, 0, main_env),
+		Window(menu_w, menu_h, 0, 0, 0, main_env)
 	};
 	
 	instance_draw(win[0], head);

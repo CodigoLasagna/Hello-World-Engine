@@ -6,29 +6,11 @@
 int main(){
 	srand(time(NULL));
 	char key{};
-	Renderer* main_env = new Renderer(1, 120);
+	Renderer* main_env = new Renderer(1, 50, 34,120);
 	int term_w = main_env->get_term_size('w'), term_h = main_env->get_term_size('h');
 	int world_w = 28, world_h = 31;
 	int xx{0}, yy{0};
-	Window* errorM = new Window(term_w, term_h, 0, 0, 0);
-	while ((term_w < world_w+22) || (term_h < world_h+2)){
-		errorM->clean();
-		key = getch();
-		main_env->update_env_size();
-		term_w = main_env->get_term_size('w');
-		term_h = main_env->get_term_size('h');
-		mvwprintw(errorM->win, term_h/2, (term_w/2)-12, "Incorrect Terminal size");
-		mvwprintw(errorM->win, (term_h/2)+1, (term_w/2)-9, "Current [%i, %i]", int(term_w), int(term_h));
-		mvwprintw(errorM->win, (term_h/2)+2, (term_w/2)-8, "Needed [%i, %i]", int(world_w), int(world_h+20));
-		update_panels();
-		doupdate();
-		if (key == 'q'){
-			endwin();
-			return 0;
-		}
-	}
-	errorM->show(false);
-	Window* win = new Window[2]{Window(world_w, world_h, -9, 0, false), Window(20, 7, world_w-13, -(world_h/2)+3, false)};
+	Window* win = new Window[2]{Window(world_w, world_h, -9, 0, false, main_env), Window(20, 7, world_w-13, -(world_h/2)+3, false, main_env)};
 	Instance* player = instance_create(int(world_w/2), int(world_h/2)+2, '@');
 	Instance* ghost = new Instance[4]{Instance(12, int(world_h/2)-1, 'O'), Instance(13, int(world_h/2)-1, 'O'), Instance(14, int(world_h/2)-1, 'O'), Instance(15, int(world_h/2)-1, 'O')};
 	Instance* fruits = instance_create(world_w/2, (world_h/2)+2, '%');

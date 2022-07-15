@@ -31,17 +31,8 @@ void Instance::set_sprite(chtype new_sprite){
 
 Instance::~Instance(){}
 
-Renderer::Renderer(){
-	m_old_time = clock();
-	
-	load_curses();
-	getmaxyx(stdscr, m_term_height, m_term_width);
-	
-	m_new_time = clock();
-	m_dt = (m_new_time - m_old_time) * m_frame_rate;
-}
-
-Renderer::Renderer(int type): m_type(type){
+Renderer::Renderer(int type, size_t minw, size_t minh):
+	m_type(type), m_min_width(minw), m_min_height(minh){
 	load_curses();
 	getmaxyx(stdscr, m_term_height, m_term_width);
 	if (m_type == 0 || m_type == 1){
@@ -51,7 +42,8 @@ Renderer::Renderer(int type): m_type(type){
 	}
 }
 
-Renderer::Renderer(int type, int wtime): m_type(type), m_wtime(wtime){
+Renderer::Renderer(int type, size_t minw, size_t minh,int wtime):
+	m_type(type), m_min_width(minw), m_min_height(minh), m_wtime(wtime){
 	load_curses();
 	getmaxyx(stdscr, m_term_height, m_term_width);
 	if (m_type == 0 || m_type == 1){
@@ -84,6 +76,13 @@ void Renderer::load_curses(){
 void Renderer::start_renderer(){
 	clear();
 	erase();
+	getmaxyx(stdscr, m_term_height, m_term_width);
+	if (m_term_width < m_min_width || m_term_height < m_min_height){
+		mvprintw(m_term_height/2, (m_term_width/2)-11, "Current terminal size.");
+		mvprintw((m_term_height/2)+1, (m_term_width/2)-11, "[Width:%i]-[Height:%i]", m_term_width, m_term_height);
+		mvprintw((m_term_height/2)+3, (m_term_width/2)-10, "Needed terminal size.");
+		mvprintw((m_term_height/2)+4, (m_term_width/2)-11, "[Width:%zu]-[Height:%zu]", m_min_width, m_min_height);
+	}
 	if (m_type == 0 ){
 		m_old_time = m_new_time;
 	}else if (m_type == 1){
@@ -117,9 +116,6 @@ int Renderer::get_rtype(){
 double Renderer::get_dt(){
 	return m_dt;
 }
-void Renderer::update_env_size(){
-	getmaxyx(stdscr, m_term_height, m_term_width);
-}
 
 int Renderer::get_term_size(char name){
 	if (name == 'w'){
@@ -130,8 +126,8 @@ int Renderer::get_term_size(char name){
 	return 0;
 }
 
-Window::Window(int width, int height, int x, int y, bool fix):
-	m_width(width), m_height(height), m_x(x), m_y(y){
+Window::Window(int width, int height, int x, int y, bool fix, Renderer* render):
+	m_width(width), m_height(height), m_x(x), m_y(y), mainRender(render){
 	getmaxyx(stdscr, term_h, term_w);
 	if (fix == false){
 		win = newwin(m_height, m_width, m_y+int(term_h/2)-(m_height/2), m_x+int(term_w/2)-(m_width/2));
@@ -154,7 +150,7 @@ void Window::clean(){
 	mvwin(win, m_y+int(term_h/2)-(m_height/2), m_x+int(term_w/2)-(m_width/2));
 	wresize(win, m_height, m_width);
 	init_pair(m_fgcolor, m_fgcolor, m_bgcolor);
-	if (term_h < m_height+2 || term_w < m_width+2){
+	if (term_h < mainRender->m_min_height || term_w < mainRender->m_min_width){
 		show(false);
 	}else{
 		show(true);
