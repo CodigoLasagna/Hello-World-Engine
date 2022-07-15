@@ -1,7 +1,4 @@
 #include "HelloWorldEngine.h" 
-#include <curses.h>
-
-Instance::Instance(){}
 
 Instance::Instance(double x, double y, chtype sprite) :
 m_coordx(x), m_coordy(y), m_sprite(sprite){}

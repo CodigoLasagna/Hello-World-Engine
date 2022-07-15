@@ -29,7 +29,7 @@ public:
 	int m_fgcolor{};
 	int m_bgcolor{-1};
 	bool m_bcolor{};
-	Instance();
+	Instance() = default;
 	Instance(double x, double y, chtype sprite);
 	double get_coord(char coord);
 	void set_coord(char coord, double value);
