@@ -71,7 +71,6 @@ void Renderer::load_curses(){
 }
 
 void Renderer::start_renderer(){
-	clear();
 	erase();
 	getmaxyx(stdscr, m_term_height, m_term_width);
 	if (m_term_width < m_min_width || m_term_height < m_min_height){
