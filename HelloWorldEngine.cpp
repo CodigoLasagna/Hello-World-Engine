@@ -71,7 +71,7 @@ void Renderer::load_curses(){
 }
 
 void Renderer::start_renderer(){
-	erase();
+	//erase();
 	getmaxyx(stdscr, m_term_height, m_term_width);
 	if (m_term_width < m_min_width || m_term_height < m_min_height){
 		mvprintw(m_term_height/2, (m_term_width/2)-11, "Current terminal size.");
@@ -101,7 +101,7 @@ void Renderer::update_renderer(){
 		update_panels();
 		doupdate();
 	}
-	refresh();
+	//refresh();
 }
 
 int Renderer::get_rtype(){
@@ -145,11 +145,11 @@ void Window::clean(){
 	mvwin(win, m_y+int(term_h/2)-(m_height/2), m_x+int(term_w/2)-(m_width/2));
 	wresize(win, m_height, m_width);
 	init_pair(m_fgcolor, m_fgcolor, m_bgcolor);
-	if (term_h < mainRender->m_min_height || term_w < mainRender->m_min_width){
-		show(false);
-	}else{
-		show(true);
-	}
+	//if (term_h < mainRender->m_min_height || term_w < mainRender->m_min_width){
+	//	show(false);
+	//}else{
+	//	show(true);
+	//}
 	if (m_bcolor == false){
 		wattron(win, COLOR_PAIR(m_fgcolor));
 		box(win, 0, 0);
