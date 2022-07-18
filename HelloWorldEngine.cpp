@@ -1,5 +1,4 @@
 #include "HelloWorldEngine.h" 
-#include <curses.h>
 
 Instance::Instance(double x, double y, chtype sprite) :
 m_coordx(x), m_coordy(y), m_sprite(sprite){}
@@ -72,9 +71,6 @@ void Renderer::load_curses(){
 }
 
 void Renderer::start_renderer(){
-	//erase();
-	//clear();
-	refresh();
 	erase();
 	getmaxyx(stdscr, m_term_height, m_term_width);
 	if (m_term_width < m_min_width || m_term_height < m_min_height){
@@ -88,7 +84,6 @@ void Renderer::start_renderer(){
 	}else if (m_type == 1){
 		std::this_thread::sleep_for(std::chrono::milliseconds(m_wtime));
 		m_old_time = m_new_time;
-	}else{
 	}
 }
 
@@ -96,14 +91,17 @@ void Renderer::update_renderer(){
 	if (m_type == 0 || m_type == 1){
 		m_new_time = clock();
 		m_dt = (m_new_time - m_old_time) * m_frame_rate;
+		update_panels();
+		doupdate();
 	}else if (m_type == 2){
 		char ch{};
 		while (ch != 'a') {
 			ch = getch();
 		}
+		update_panels();
+		doupdate();
 	}
-	update_panels();
-	doupdate();
+	refresh();
 }
 
 int Renderer::get_rtype(){
