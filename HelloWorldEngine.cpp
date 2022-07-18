@@ -1,4 +1,5 @@
 #include "HelloWorldEngine.h" 
+#include <curses.h>
 
 Instance::Instance(double x, double y, chtype sprite) :
 m_coordx(x), m_coordy(y), m_sprite(sprite){}
@@ -72,7 +73,12 @@ void Renderer::load_curses(){
 
 void Renderer::start_renderer(){
 	//erase();
+	//clear();
 	getmaxyx(stdscr, m_term_height, m_term_width);
+	if (m_term_height != past_h || m_term_width != past_w){
+		past_w = m_term_width, past_h = m_term_height;
+		clear();
+	}
 	if (m_term_width < m_min_width || m_term_height < m_min_height){
 		mvprintw(m_term_height/2, (m_term_width/2)-11, "Current terminal size.");
 		mvprintw((m_term_height/2)+1, (m_term_width/2)-11, "[Width:%i]-[Height:%i]", m_term_width, m_term_height);
@@ -101,7 +107,6 @@ void Renderer::update_renderer(){
 		update_panels();
 		doupdate();
 	}
-	//refresh();
 }
 
 int Renderer::get_rtype(){

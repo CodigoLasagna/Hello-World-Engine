@@ -44,6 +44,7 @@ public:
 class Renderer{
 private:
 	int m_term_width{}, m_term_height{};
+	int past_w{}, past_h{};
 	int m_wtime{200};
 	double m_frame_rate{1.0 / 60.0};
 	double m_old_time{}, m_new_time{}, m_dt{};
@@ -65,7 +66,7 @@ public:
 class Window{
 	private:
 		int term_w{}, term_h{};
-		bool change_w{false};
+		bool change_w{};
 	public:
 		Renderer* mainRender;
 		int m_width = 10;
