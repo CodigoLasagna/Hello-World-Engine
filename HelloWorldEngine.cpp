@@ -94,7 +94,7 @@ void Renderer::update_renderer(){
 		m_dt = (m_new_time - m_old_time) * m_frame_rate;
 		update_panels();
 		doupdate();
-	}else{
+	}else if (m_type == 2){
 		char ch{};
 		while (ch != 'a') {
 			ch = getch();
@@ -143,8 +143,8 @@ void Window::show(bool s){
 void Window::clean(){
 	getmaxyx(stdscr, term_h, term_w);
 	werase(win);
-	mvwin(win, m_y+int(term_h/2)-(m_height/2), m_x+int(term_w/2)-(m_width/2));
-	wresize(win, m_height, m_width);
+	//mvwin(win, m_y+int(term_h/2)-(m_height/2), m_x+int(term_w/2)-(m_width/2));
+	//wresize(win, m_height, m_width);
 	init_pair(m_fgcolor, m_fgcolor, m_bgcolor);
 	if (term_h < mainRender->m_min_height || term_w < mainRender->m_min_width){
 		show(false);
