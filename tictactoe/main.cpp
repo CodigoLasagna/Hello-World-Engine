@@ -10,7 +10,7 @@ std::string input{};
 void draw();
 void contMode(int mode, int turn);
 void makeInput();
-Renderer* mainrender = new Renderer(1, 23, 13, 100);
+Renderer* mainrender = new Renderer(1, 21, 11, 100);
 Window mainwin = Window(21, 11, 0, 0, false, mainrender);
 Window table = Window(17, 9, 2, 1, false, mainrender);
 Window inputWin = Window(21, 3, 0, 6, false, mainrender);

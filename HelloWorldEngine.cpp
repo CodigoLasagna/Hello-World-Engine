@@ -1,4 +1,5 @@
 #include "HelloWorldEngine.h" 
+#include <curses.h>
 
 Instance::Instance(double x, double y, chtype sprite) :
 m_coordx(x), m_coordy(y), m_sprite(sprite){}
@@ -71,6 +72,9 @@ void Renderer::load_curses(){
 }
 
 void Renderer::start_renderer(){
+	//erase();
+	//clear();
+	refresh();
 	erase();
 	getmaxyx(stdscr, m_term_height, m_term_width);
 	if (m_term_width < m_min_width || m_term_height < m_min_height){
@@ -92,17 +96,14 @@ void Renderer::update_renderer(){
 	if (m_type == 0 || m_type == 1){
 		m_new_time = clock();
 		m_dt = (m_new_time - m_old_time) * m_frame_rate;
-		update_panels();
-		doupdate();
 	}else if (m_type == 2){
 		char ch{};
 		while (ch != 'a') {
 			ch = getch();
 		}
-		update_panels();
-		doupdate();
 	}
-	refresh();
+	update_panels();
+	doupdate();
 }
 
 int Renderer::get_rtype(){
@@ -143,8 +144,8 @@ void Window::show(bool s){
 void Window::clean(){
 	getmaxyx(stdscr, term_h, term_w);
 	werase(win);
-	//mvwin(win, m_y+int(term_h/2)-(m_height/2), m_x+int(term_w/2)-(m_width/2));
-	//wresize(win, m_height, m_width);
+	mvwin(win, m_y+int(term_h/2)-(m_height/2), m_x+int(term_w/2)-(m_width/2));
+	wresize(win, m_height, m_width);
 	init_pair(m_fgcolor, m_fgcolor, m_bgcolor);
 	if (term_h < mainRender->m_min_height || term_w < mainRender->m_min_width){
 		show(false);
