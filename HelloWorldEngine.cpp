@@ -134,22 +134,26 @@ Window::Window(int width, int height, int x, int y, bool fix, Renderer* render):
 }
 void Window::show(bool s){
 	if (s == true){
-		show_panel(pane);
+		if (change_w == false){
+			show_panel(pane);
+			change_w = true;
+		}
 	}else{
 		hide_panel(pane);
+		change_w = false;
 	}
 }
 void Window::clean(){
+	if (term_h > mainRender->m_min_height || term_w > mainRender->m_min_width){
+		show(true);
+	}else{
+		show(false);
+	}
 	getmaxyx(stdscr, term_h, term_w);
 	werase(win);
 	mvwin(win, m_y+int(term_h/2)-(m_height/2), m_x+int(term_w/2)-(m_width/2));
 	wresize(win, m_height, m_width);
 	init_pair(m_fgcolor, m_fgcolor, m_bgcolor);
-	//if (term_h < mainRender->m_min_height || term_w < mainRender->m_min_width){
-	//	show(false);
-	//}else{
-	//	show(true);
-	//}
 	if (m_bcolor == false){
 		wattron(win, COLOR_PAIR(m_fgcolor));
 		box(win, 0, 0);

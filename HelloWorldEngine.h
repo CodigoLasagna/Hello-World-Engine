@@ -65,6 +65,7 @@ public:
 class Window{
 	private:
 		int term_w{}, term_h{};
+		bool change_w{false};
 	public:
 		Renderer* mainRender;
 		int m_width = 10;
