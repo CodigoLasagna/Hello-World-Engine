@@ -3,31 +3,32 @@
 #include <curses.h>
 #include <string>
 int grid[9]{};
-int turn{1};
+int turn{};
 int x{0}, y{0};
 std::string input{};
 
 void draw();
-void contMode(int mode, int turn);
+void contMode(int mode);
 void makeInput();
+void computer();
 Renderer* mainrender = new Renderer(1, 21, 11, 100);
 Window mainwin = Window(21, 11, 0, 0, false, mainrender);
 Window table = Window(17, 9, 2, 1, false, mainrender);
 Window inputWin = Window(21, 3, 0, 6, false, mainrender);
 
 int key{};
-int mode{};
+int mode{1};
 
 int main(){
 	for (int i = 0; i < 9; ++i) grid[i] = -1;
 	while (key != int('q')) {
 		mainrender->start_renderer();
 		mainwin.clean();
-		// table.clean();
-		// inputWin.clean();
-		 key = getch();
-		// contMode(0, turn);
-		// draw();
+		table.clean();
+		inputWin.clean();
+		key = getch();
+		contMode(mode);
+		draw();
 		mainrender->update_renderer();
 	}
 	endwin();
@@ -62,19 +63,39 @@ void draw(){
 	x = 0; y = 0;
 }
 
-void contMode(int mode, int turn){
+void contMode(int mode){
 	switch (mode) {
 		case 0:
 			makeInput();
 		break;
+		case 1:
+			makeInput();
+			if (turn == 1){
+				draw();update_panels();doupdate();
+				std::this_thread::sleep_for(std::chrono::milliseconds(500));
+				grid[2] = turn;
+				turn = !turn;
+			}
+		break;
 	}
 }
 void makeInput(){
-	int p{}; if (input.length() > 0) p = std::stoi(input)-1;
-	if (key == KEY_MOUSE){
-		grid[1] = 1;
+	MEVENT event;
+	mousemask(BUTTON1_CLICKED, NULL);
+	int p{}, mx_lb{}, mx_db{}, my_lb{}, my_db{};
+	mx_lb = (mainrender->get_term_size('w')/2)-(table.m_width/2)+2; mx_db = (mainrender->get_term_size('w')/2)+(table.m_width/2)+2;
+	my_lb = (mainrender->get_term_size('h')/2)-(table.m_height/2)+1; my_db = (mainrender->get_term_size('h')/2)+(table.m_height/2)+1;
+	if (key == KEY_MOUSE && getmouse(&event) == OK){
+		if (event.bstate & BUTTON1_CLICKED){
+			int mx{(event.x-mx_lb)/6}, my{((event.y-my_lb)/2)-1};
+			if (event.x > mx_lb && event.x < mx_db && event.y > my_lb && event.y < my_db && grid[my*3+mx] == -1){
+				grid[my*3+mx] = turn;
+				turn = !turn;
+			}
+		}
 	}
 	if (key == '\n'){
+		if (input.length() > 0) p = std::stoi(input)-1;
 		if (grid[p] == -1){
 			switch (input.length()) {
 				case 0:break;
@@ -84,11 +105,18 @@ void makeInput(){
 		}
 		input = "";
 	}
-	if (input.length() < 4 && key != EOF && key && key != '\n'){
+	if (input.length() < 4 && key != EOF && key && key != '\n' && key != KEY_MOUSE){
 		if (key != KEY_BACKSPACE && input.length() < 3){
 			input += (char)key;
 		}else if (input.length() > 0 && key == KEY_BACKSPACE){
 			input.pop_back();
+		}
+	}
+}
+void computer(){
+	for (int i = 0; i < 9; ++i){
+		if (grid[i] == -1){
+
 		}
 	}
 }
