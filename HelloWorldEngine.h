@@ -29,7 +29,7 @@ public:
 	int m_fgcolor{};
 	int m_bgcolor{-1};
 	bool m_bcolor{};
-	Instance();
+	Instance() = default;
 	Instance(double x, double y, chtype sprite);
 	double get_coord(char coord);
 	void set_coord(char coord, double value);
@@ -44,16 +44,17 @@ public:
 class Renderer{
 private:
 	int m_term_width{}, m_term_height{};
+	int past_w{}, past_h{};
 	int m_wtime{200};
 	double m_frame_rate{1.0 / 60.0};
 	double m_old_time{}, m_new_time{}, m_dt{};
 	int m_type{};	// [type 0 == no_sleeptime] [type 1 == sleeptypem] [type 2 == wait for command]
 	void load_curses();
 public:
-	Renderer();
-	Renderer(int type);
-	Renderer(int type, int wtime);
-	void update_env_size();
+	size_t m_min_width{20}, m_min_height{20};
+	Renderer() = default;
+	Renderer(int type, size_t minw, size_t minh);
+	Renderer(int type, size_t minw, size_t minh, int wtime);
 	int get_term_size(char name);
 	void start_renderer();
 	void update_renderer();
@@ -65,15 +66,18 @@ public:
 class Window{
 	private:
 		int term_w{}, term_h{};
+		bool change_w{};
 	public:
+		Renderer* mainRender;
 		int m_width = 10;
 		int m_height = 10;
+		int m_x{}, m_y{};
 		int m_fgcolor{};
 		int m_bgcolor{-1};
 		bool m_bcolor{};
 		WINDOW* win;
 		PANEL* pane;
-		Window(int width, int height, int x, int y, bool fix);
+		Window(int width, int height, int x, int y, bool fix, Renderer* render);
 		void show(bool s);
 		void clean();
 		~Window() = default;

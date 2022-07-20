@@ -7,7 +7,7 @@ int main(){
 	//el renderizado de tipo 0, funciona en tiempo real, con la velocidad actual de tu equipo,
 	//el renderizado de tipo 1, funciona con un delay en milisegundos para un loop de juego
 	//mejor controlado.
-	Renderer* main_env = new Renderer(1, 95); // aquí generaremos un objeto de tiempo controlado y 95ms de delay.
+	Renderer* main_env = new Renderer(1, 40, 40, 95); // aquí generaremos un objeto de tiempo controlado y 95ms de delay.
 	
 	//Después procedemos a definir una ventana, puedes tener el número de ventanas que quieras en tu juego.
 	//aquí pediremos el tamaño actual con el que se comenzó la terminal, no es necesario hacer este paso, pero
@@ -18,17 +18,17 @@ int main(){
 	//si sabes declarar objetos con base a clases dentro de c++, no debería resultar ajeno
 	//en este caso se crea una ventana/panel llamada terminal, que es justamente del ancho y alto de
 	//la terminal, se dibuja desde el centro.
-	Window terminal = Window(term_w, term_h, 0, 0, false);
+	Window terminal = Window(term_w, term_h, 0, 0, false, main_env);
 	//y aquí está la manera complicada, pero muy útil si quieres crear varios menús o ventanas a utilizar
 	//en tu juego.
 	Window* win = new Window[2]{//aquí el número de ventanas a generar
-		Window(14, 8, 1, 15, true),// aquí dibujamos la ventana desde la esquina superior izquierda
+		Window(14, 8, 1, 15, true, main_env),// aquí dibujamos la ventana desde la esquina superior izquierda
 								   // con 14 unidades de ancho y 8 unidades de alto,
 								   // y la movemos una unidad hacia la derecha, y otras 15 unidades
 								   // hacia abajo, por eso el valor final está en true.
 								   // porque permite esta clase de formato.
 								   // por el contrario...
-		Window(30, 20, 12, 0, false)//aquí dibujamos la ventana desde el centro, y la movemos 12 unidades a la derecha
+		Window(30, 20, 12, 0, false, main_env)//aquí dibujamos la ventana desde el centro, y la movemos 12 unidades a la derecha
 									//, pero 0 unidades en el eje hacia abajo o arriba porque ya está centrada
 									//esta ventana mide 30 unidades de ancho y 20 de alto.
 	};

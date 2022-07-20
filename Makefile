@@ -14,6 +14,6 @@ $(TARGET): $(OBJS)
 clean:
 	rm -rf $(TARGET) *.o
 cleanO:
-	rm -rf *.o
+	rm -rf main.o
 	
 .PHONY: all clean cleanO
