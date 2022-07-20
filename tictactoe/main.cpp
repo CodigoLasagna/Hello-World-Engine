@@ -70,6 +70,8 @@ void draw(){
 	}else{
 		mvwprintw(mainwin.win, 2, 5, "[JcJ] - [1]");
 		mvwprintw(mainwin.win, 4, 5, "[JcC] - [2]");
+		mvwprintw(mainwin.win, 6, 4, "[salir] - [q]");
+		mvwprintw(mainwin.win, 8, 1, "[volver al menu][r]");
 	}
 	mvwprintw(inputWin.win, 1, 1, "%s", input.c_str());
 }
