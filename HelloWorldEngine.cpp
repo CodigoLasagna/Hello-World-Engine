@@ -1,5 +1,4 @@
 #include "HelloWorldEngine.h" 
-#include <curses.h>
 
 Instance::Instance(double x, double y, chtype sprite) :
 m_coordx(x), m_coordy(y), m_sprite(sprite){}
@@ -72,8 +71,6 @@ void Renderer::load_curses(){
 }
 
 void Renderer::start_renderer(){
-	//erase();
-	//clear();
 	getmaxyx(stdscr, m_term_height, m_term_width);
 	if (m_term_height != past_h || m_term_width != past_w){
 		past_w = m_term_width, past_h = m_term_height;
