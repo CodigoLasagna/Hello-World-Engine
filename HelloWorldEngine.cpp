@@ -1,46 +1,54 @@
 #include "HelloWorldEngine.h" 
 
-Instance::Instance(){}
 
-Instance::Instance(double x, double y, chtype sprite) :
-m_coordx(x), m_coordy(y), m_sprite(sprite){}
-
-double Instance::get_coord(char coord){
-	if (coord == 'x'){
-		return m_coordx;
-	}else if (coord == 'y'){
-		return m_coordy;
+//Funciones de ventanas
+Window::Window(int width, int height, int x, int y, bool fix, Renderer* render):
+	m_width(width), m_height(height), m_x(x), m_y(y), mainRender(render){
+	getmaxyx(stdscr, term_h, term_w);
+	if (fix == false){
+		win = newwin(m_height, m_width, m_y+int(term_h/2)-(m_height/2), m_x+int(term_w/2)-(m_width/2));
+	}else{
+		win = newwin(m_height, m_width, m_y, m_x);
 	}
-	return 0;
+	pane = new_panel(win);
+	clean();
 }
-void Instance::set_coord(char coord, double value){
-	if (coord == 'x'){
-		m_coordx = value;
-	}else if (coord == 'y'){
-		m_coordy = value;
+void Window::show(bool s){
+	if (s == true){
+		if (change_w == false){
+			show_panel(pane);
+			change_w = true;
+		}
+	}else{
+		hide_panel(pane);
+		change_w = false;
+	}
+}
+void Window::clean(){
+	if (term_h > mainRender->m_min_height || term_w > mainRender->m_min_width){
+		show(true);
+	}else{
+		show(false);
+	}
+	getmaxyx(stdscr, term_h, term_w);
+	werase(win);
+	mvwin(win, m_y+int(term_h/2)-(m_height/2), m_x+int(term_w/2)-(m_width/2));
+	wresize(win, m_height, m_width);
+	init_pair(m_fgcolor, m_fgcolor, m_bgcolor);
+	if (m_bcolor == false){
+		wattron(win, COLOR_PAIR(m_fgcolor));
+		box(win, 0, 0);
+		wattroff(win, COLOR_PAIR(m_fgcolor));
+	}else{
+		wattron(win, A_BOLD | COLOR_PAIR(m_fgcolor));
+		box(win, 0, 0);
+		wattroff(win, A_BOLD | COLOR_PAIR(m_fgcolor));
 	}
 }
 
-chtype Instance::get_sprite(){
-	return m_sprite;
-}
-void Instance::set_sprite(chtype new_sprite){
-	m_sprite = new_sprite;
-}
-
-Instance::~Instance(){}
-
-Renderer::Renderer(){
-	m_old_time = clock();
-	
-	load_curses();
-	getmaxyx(stdscr, m_term_height, m_term_width);
-	
-	m_new_time = clock();
-	m_dt = (m_new_time - m_old_time) * m_frame_rate;
-}
-
-Renderer::Renderer(int type): m_type(type){
+//Funciones de render
+Renderer::Renderer(int type, size_t minw, size_t minh):
+	m_type(type), m_min_width(minw), m_min_height(minh){
 	load_curses();
 	getmaxyx(stdscr, m_term_height, m_term_width);
 	if (m_type == 0 || m_type == 1){
@@ -50,7 +58,8 @@ Renderer::Renderer(int type): m_type(type){
 	}
 }
 
-Renderer::Renderer(int type, int wtime): m_type(type), m_wtime(wtime){
+Renderer::Renderer(int type, size_t minw, size_t minh,int wtime):
+	m_type(type), m_min_width(minw), m_min_height(minh), m_wtime(wtime){
 	load_curses();
 	getmaxyx(stdscr, m_term_height, m_term_width);
 	if (m_type == 0 || m_type == 1){
@@ -81,12 +90,22 @@ void Renderer::load_curses(){
 }
 
 void Renderer::start_renderer(){
+	getmaxyx(stdscr, m_term_height, m_term_width);
+	if (m_term_height != past_h || m_term_width != past_w){
+		past_w = m_term_width, past_h = m_term_height;
+		clear();
+	}
+	if (m_term_width < m_min_width || m_term_height < m_min_height){
+		mvprintw(m_term_height/2, (m_term_width/2)-11, "Current terminal size.");
+		mvprintw((m_term_height/2)+1, (m_term_width/2)-11, "[Width:%i]-[Height:%i]", m_term_width, m_term_height);
+		mvprintw((m_term_height/2)+3, (m_term_width/2)-10, "Needed terminal size.");
+		mvprintw((m_term_height/2)+4, (m_term_width/2)-11, "[Width:%zu]-[Height:%zu]", m_min_width, m_min_height);
+	}
 	if (m_type == 0 ){
 		m_old_time = m_new_time;
 	}else if (m_type == 1){
 		std::this_thread::sleep_for(std::chrono::milliseconds(m_wtime));
 		m_old_time = m_new_time;
-	}else{
 	}
 }
 
@@ -96,7 +115,7 @@ void Renderer::update_renderer(){
 		m_dt = (m_new_time - m_old_time) * m_frame_rate;
 		update_panels();
 		doupdate();
-	}else{
+	}else if (m_type == 2){
 		char ch{};
 		while (ch != 'a') {
 			ch = getch();
@@ -113,9 +132,6 @@ int Renderer::get_rtype(){
 double Renderer::get_dt(){
 	return m_dt;
 }
-void Renderer::update_env_size(){
-	getmaxyx(stdscr, m_term_height, m_term_width);
-}
 
 int Renderer::get_term_size(char name){
 	if (name == 'w'){
@@ -126,37 +142,33 @@ int Renderer::get_term_size(char name){
 	return 0;
 }
 
-Window::Window(int width, int height, int x, int y, bool fix):
-	m_width(width), m_height(height){
-	getmaxyx(stdscr, term_h, term_w);
-	if (fix == false){
-		win = newwin(m_height, m_width, y+int(term_h/2)-(m_height/2), x+int(term_w/2)-(m_width/2));
-	}else{
-		win = newwin(m_height, m_width, y, x);
+//Funciones de instancias
+Instance::Instance(double x, double y, chtype sprite) :
+m_coordx(x), m_coordy(y), m_sprite(sprite){}
+
+double Instance::get_coord(char coord){
+	if (coord == 'x'){
+		return m_coordx;
+	}else if (coord == 'y'){
+		return m_coordy;
 	}
-	pane = new_panel(win);
-	clean();
+	return 0;
 }
-void Window::show(bool s){
-	if (s == true){
-		show_panel(pane);
-	}else{
-		hide_panel(pane);
-	}
-}
-void Window::clean(){
-	werase(win);
-	init_pair(m_fgcolor, m_fgcolor, m_bgcolor);
-	if (m_bcolor == false){
-		wattron(win, COLOR_PAIR(m_fgcolor));
-		box(win, 0, 0);
-		wattroff(win, COLOR_PAIR(m_fgcolor));
-	}else{
-		wattron(win, A_BOLD | COLOR_PAIR(m_fgcolor));
-		box(win, 0, 0);
-		wattroff(win, A_BOLD | COLOR_PAIR(m_fgcolor));
+void Instance::set_coord(char coord, double value){
+	if (coord == 'x'){
+		m_coordx = value;
+	}else if (coord == 'y'){
+		m_coordy = value;
 	}
 }
+
+chtype Instance::get_sprite(){
+	return m_sprite;
+}
+void Instance::set_sprite(chtype new_sprite){
+	m_sprite = new_sprite;
+}
+
 
 void Instance::set_color(int fg, int bg, bool alt){
 	m_fgcolor = fg;
@@ -185,3 +197,4 @@ void instance_draw(Window place, Instance* instance){
 		wattroff(place.win, A_BOLD | COLOR_PAIR(instance->m_fgcolor));
 	}
 }
+//Funciones de ECS
