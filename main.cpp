@@ -1,5 +1,5 @@
-#include "nfeatures/main.cpp"
+//#include "nfeatures/main.cpp"
 //#include "template/main.cpp"
-//#include "pacman/pacman.cpp"
+#include "pacman/pacman.cpp"
 //#include "snake/snake.cpp"
 //#include "tictactoe/main.cpp"

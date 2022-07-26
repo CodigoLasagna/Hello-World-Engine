@@ -24,6 +24,10 @@ public:
 	void setSprite(chtype s){
 		sprite = s;
 	}
+
+	void setColor(int fg_c, int bg_c, bool bc_c){
+		fgc = fg_c, bgc = bg_c, bc = bc_c;
+	}
 	
 	void init() override{
 		position = &entity->getComponent<PositionComponent>();
