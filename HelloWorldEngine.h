@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef GAME_ENGINE
 #define GAME_ENGINE
 
@@ -11,6 +13,8 @@
 #include <iostream>
 #include <vector>
 
+#include "ECS/Components.h"
+
 #define C_BLACK		0
 #define C_RED		1
 #define C_GREEN		2
@@ -20,7 +24,7 @@
 #define C_CYAN		6
 #define C_WHITE		7
 
-class Renderer{
+class Renderer /*Clase para crear el renderizador*/{
 private:
 	int m_term_width{}, m_term_height{};
 	int past_w{}, past_h{};
@@ -56,6 +60,7 @@ public:
 	bool m_bcolor{};
 	WINDOW* win;
 	PANEL* pane;
+	Window() = default;
 	Window(int width, int height, int x, int y, bool fix, Renderer* render);
 	void show(bool s);
 	void clean();
