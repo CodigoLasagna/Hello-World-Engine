@@ -7,11 +7,8 @@
 #include <panel.h> 
 //#include <ncursesw/curses.h> 
 //#include <ncursesw/panel.h> 
-#include <string> 
 #include <chrono>
 #include <thread>
-#include <iostream>
-#include <vector>
 
 #include "ECS/Components.h"
 

@@ -1,4 +1,5 @@
 #include "HelloWorldEngine.h" 
+#include <ctime>
 #include <ncurses.h>
 
 
