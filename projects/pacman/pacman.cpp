@@ -1,6 +1,6 @@
-//nr
+//nr 1
 #include <fstream>
-#include "../HelloWorldEngine.h"
+#include "../../HelloWorldEngine.h"
 #include <random>
 
 int main(){
@@ -50,7 +50,7 @@ int main(){
 	while(!indata.is_open()){
 		main_env->start_renderer();
 		mvwaddstr(win[0].win, world_h/2, 1, "Check if 'map.txt' exists");
-		filename = "pacman/map.txt";
+		filename = "projects/pacman/map.txt";
 		indata.open(filename);
 		main_env->update_renderer();
 	}
