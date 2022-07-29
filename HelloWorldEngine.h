@@ -71,14 +71,17 @@ class Instance{
 private:
 	chtype m_sprite{'#'};
 public:
+	const char* m_assprite{"#"};
 	int m_type{};
 	double m_coordx{};
 	double m_coordy{};
 	int m_fgcolor{};
 	int m_bgcolor{-1};
 	bool m_bcolor{};
+	bool m_ascii{};
 	Instance() = default;
 	Instance(double x, double y, chtype sprite);
+	Instance(double x, double y, const char* sprite, bool ascii);
 	double get_coord(char coord);
 	void set_coord(char coord, double value);
 	void set_color(int fg, int bg, bool alt);
@@ -98,6 +101,7 @@ public:
 };
 
 Instance* instance_create(int x, int y, chtype sprite);
+Instance* instance_create(int x, int y, const char* sprite, bool ascii);
 void instance_destroy(Instance* instance);
 void instance_draw(Window, Instance* instance);
 

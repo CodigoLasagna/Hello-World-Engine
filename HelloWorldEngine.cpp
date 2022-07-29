@@ -1,4 +1,5 @@
 #include "HelloWorldEngine.h" 
+#include <ncurses.h>
 
 
 //Funciones de ventanas
@@ -146,6 +147,9 @@ int Renderer::get_term_size(char name){
 Instance::Instance(double x, double y, chtype sprite) :
 m_coordx(x), m_coordy(y), m_sprite(sprite){}
 
+Instance::Instance(double x, double y, const char* sprite, bool ascii) :
+m_coordx(x), m_coordy(y), m_assprite(sprite), m_ascii(ascii){}
+
 double Instance::get_coord(char coord){
 	if (coord == 'x'){
 		return m_coordx;
@@ -177,6 +181,9 @@ void Instance::set_color(int fg, int bg, bool alt){
 Instance* instance_create(int x, int y, chtype sprite){
 	return new Instance(x, y, sprite);
 }
+Instance* instance_create(int x, int y, const char* sprite, bool ascii){
+	return new Instance(x, y, sprite, ascii);
+}
 void instance_destroy(Instance* instance){
 	delete instance;
 	instance = nullptr;
@@ -189,11 +196,19 @@ void instance_draw(Window place, Instance* instance){
 	init_pair(instance->m_fgcolor, instance->m_fgcolor, instance->m_bgcolor);
 	if (instance->m_bcolor == false){
 		wattron(place.win, COLOR_PAIR(instance->m_fgcolor));
-		mvwaddch(place.win, temp_y, temp_x, s);
+		if (instance->m_ascii == true) {
+			mvwprintw(place.win, temp_y, temp_x, "%s", instance->m_assprite);
+		}else{
+			mvwaddch(place.win, temp_y, temp_x, s);
+		}
 		wattroff(place.win, COLOR_PAIR(instance->m_fgcolor));
 	}else{
 		wattron(place.win, A_BOLD | COLOR_PAIR(instance->m_fgcolor));
-		mvwaddch(place.win, temp_y, temp_x, s);
+		if (instance->m_ascii == true) {
+			mvwprintw(place.win, temp_y, temp_x, "%s", instance->m_assprite);
+		}else{
+			mvwaddch(place.win, temp_y, temp_x, s);
+		}
 		wattroff(place.win, A_BOLD | COLOR_PAIR(instance->m_fgcolor));
 	}
 }
