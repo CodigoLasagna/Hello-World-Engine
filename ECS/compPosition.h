@@ -21,8 +21,8 @@ public:
 	// 	xpos = 0; ypos = 0;
 	// }
 	void update() override{
-		xpos++;
-		//ypos;
+		xpos;
+		ypos;
 	}
 	// void setPos(int x, int y){
 	// 	xpos = x; ypos = y;

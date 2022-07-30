@@ -1,7 +1,7 @@
 #include "HelloWorldEngine.h" 
-#include <ctime>
-#include <ncurses.h>
-
+#include <chrono>
+#include <curses.h>
+#include <panel.h>
 
 //Funciones de ventanas
 Window::Window(int width, int height, int x, int y, bool fix, Renderer* render):
@@ -55,8 +55,7 @@ Renderer::Renderer(int type, size_t minw, size_t minh):
 	getmaxyx(stdscr, m_term_height, m_term_width);
 	if (m_type == 0 || m_type == 1){
 		m_old_time = clock();
-		m_new_time = clock();
-		m_dt = (m_new_time - m_old_time) * m_frame_rate;
+		m_dt = 0.0;
 	}
 }
 
@@ -66,8 +65,17 @@ Renderer::Renderer(int type, size_t minw, size_t minh,int wtime):
 	getmaxyx(stdscr, m_term_height, m_term_width);
 	if (m_type == 0 || m_type == 1){
 		m_old_time = clock();
-		m_new_time = clock();
-		m_dt = (m_new_time - m_old_time) * m_frame_rate;
+		m_dt = 0.0;
+	}
+}
+
+Renderer::Renderer(int type, size_t minw, size_t minh, double wtime, int exit_key):
+	m_type(type), m_min_width(minw), m_min_height(minh), m_wtime(double(wtime)), m_exit_key(exit_key){
+	load_curses();
+	getmaxyx(stdscr, m_term_height, m_term_width);
+	if (m_type == 0 || m_type == 1){
+		m_old_time = clock();
+		m_dt = 0.0;
 	}
 }
 
@@ -104,17 +112,66 @@ void Renderer::start_renderer(){
 		mvprintw((m_term_height/2)+4, (m_term_width/2)-11, "[Width:%zu]-[Height:%zu]", m_min_width, m_min_height);
 	}
 	if (m_type == 0 ){
-		m_old_time = m_new_time;
+
 	}else if (m_type == 1){
 		std::this_thread::sleep_for(std::chrono::milliseconds(m_wtime));
-		m_old_time = m_new_time;
+		//m_old_time = m_new_time;
 	}
 }
 
+void Renderer::game_loop(void update(), void draw()){
+	update_panels();
+	doupdate();
+	auto old_time = std::chrono::high_resolution_clock::now();
+	while (m_key != m_exit_key) {
+		//input
+		m_key = getch();
+		auto new_time = std::chrono::high_resolution_clock::now();
+		double dt = (new_time - old_time).count() / 1e9;
+		//update here
+		update();
+		draw();
+		update_panels();
+		doupdate();
+		auto frame_time = std::chrono::high_resolution_clock::now();
+		double sleepSecs = 1.0 / m_wtime - (frame_time - new_time).count() / 1e9;
+		preciseSleep(sleepSecs);
+		old_time = new_time;
+	}
+	endwin();
+}
+
+void preciseSleep(double seconds){
+	static double estimate = 5e-3;
+	static double mean = 5e-3;
+	static double m2 = 0;
+	static int64_t count = 1;
+	
+	while (seconds > estimate) {
+		auto start = std::chrono::high_resolution_clock::now();
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		auto end = std::chrono::high_resolution_clock::now();
+		
+		double observed = (end - start).count() / 1e9;
+		seconds -= observed;
+		
+		++count;
+		double delta = observed - mean;
+		mean += delta / count;
+		m2 += delta * (observed - mean);
+		double stddev = std::sqrt(m2 / (count - 1));
+		estimate = mean + stddev;
+	}
+	
+	auto start = std::chrono::high_resolution_clock::now();
+	while ((std::chrono::high_resolution_clock::now() - start).count() / 1e9 < seconds);
+}
+
+
 void Renderer::update_renderer(){
 	if (m_type == 0 || m_type == 1){
-		m_new_time = clock();
-		m_dt = (m_new_time - m_old_time) * m_frame_rate;
+		//m_new_time = clock();
+		//m_dt = (m_new_time - m_old_time) * m_frame_rate;
 		update_panels();
 		doupdate();
 	}else if (m_type == 2){

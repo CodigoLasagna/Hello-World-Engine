@@ -7,6 +7,7 @@
 #include <panel.h> 
 //#include <ncursesw/curses.h> 
 //#include <ncursesw/panel.h> 
+#include <cmath>
 #include <chrono>
 #include <thread>
 
@@ -20,23 +21,28 @@
 #define C_MAGENTA	5
 #define C_CYAN		6
 #define C_WHITE		7
+void preciseSleep(double seconds);
 
 class Renderer /*Clase para crear el renderizador*/{
 private:
 	int m_term_width{}, m_term_height{};
 	int past_w{}, past_h{};
 	int m_wtime{200};
-	double m_frame_rate{1.0 / 60.0};
-	double m_old_time{}, m_new_time{}, m_dt{};
+	double m_frame_rate{};
+	double m_old_time{}, m_lapsed{}, m_dt{};
 	int m_type{};	// [type 0 == no_sleeptime] [type 1 == sleeptypem] [type 2 == wait for command]
 	void load_curses();
+	int m_exit_key{};
 public:
 	size_t m_min_width{20}, m_min_height{20};
+	int m_key{};
 	Renderer() = default;
 	Renderer(int type, size_t minw, size_t minh);
 	Renderer(int type, size_t minw, size_t minh, int wtime);
+	Renderer(int type, size_t minw, size_t minh, double wtime, int exit_key);
 	int get_term_size(char name);
 	void start_renderer();
+	void game_loop(void update(), void draw());
 	void update_renderer();
 	int get_rtype();
 	double get_dt();
