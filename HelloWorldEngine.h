@@ -40,6 +40,7 @@ public:
 	Renderer(int type, size_t minw, size_t minh);
 	Renderer(int type, size_t minw, size_t minh, int wtime);
 	Renderer(int type, size_t minw, size_t minh, double wtime, int exit_key);
+	void display_error();
 	int get_term_size(char name);
 	void start_renderer();
 	void game_loop(void update(), void draw());
@@ -61,6 +62,7 @@ public:
 	int m_fgcolor{};
 	int m_bgcolor{-1};
 	bool m_bcolor{};
+	bool m_fix{};
 	WINDOW* win;
 	PANEL* pane;
 	Window() = default;

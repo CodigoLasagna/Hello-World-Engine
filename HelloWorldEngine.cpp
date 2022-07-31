@@ -5,12 +5,13 @@
 
 //Funciones de ventanas
 Window::Window(int width, int height, int x, int y, bool fix, Renderer* render):
-	m_width(width), m_height(height), m_x(x), m_y(y), mainRender(render){
+	m_width(width), m_height(height), m_x(x), m_y(y), m_fix(fix),mainRender(render){
 	getmaxyx(stdscr, term_h, term_w);
-	if (fix == false){
+	if (m_fix == false){
 		win = newwin(m_height, m_width, m_y+int(term_h/2)-(m_height/2), m_x+int(term_w/2)-(m_width/2));
-	}else{
-		win = newwin(m_height, m_width, m_y, m_x);
+		//win = newwin(m_height, m_width, 0, 0);
+	}else if (m_fix == true){
+		win = newwin(m_height, m_width, 0, 0);
 	}
 	pane = new_panel(win);
 	clean();
@@ -27,14 +28,15 @@ void Window::show(bool s){
 	}
 }
 void Window::clean(){
-	if (term_h > mainRender->m_min_height || term_w > mainRender->m_min_width){
-		show(true);
-	}else{
-		show(false);
-	}
 	getmaxyx(stdscr, term_h, term_w);
+	if (term_h < mainRender->m_min_height && term_w < mainRender->m_min_width){
+		show(false);
+	}else{
+		show(true);
+	}
 	werase(win);
-	mvwin(win, m_y+int(term_h/2)-(m_height/2), m_x+int(term_w/2)-(m_width/2));
+	if (m_fix == false)
+		mvwin(win, m_y+int(term_h/2)-(m_height/2), m_x+int(term_w/2)-(m_width/2));
 	wresize(win, m_height, m_width);
 	init_pair(m_fgcolor, m_fgcolor, m_bgcolor);
 	if (m_bcolor == false){
@@ -106,13 +108,10 @@ void Renderer::start_renderer(){
 		clear();
 	}
 	if (m_term_width < m_min_width || m_term_height < m_min_height){
-		mvprintw(m_term_height/2, (m_term_width/2)-11, "Current terminal size.");
-		mvprintw((m_term_height/2)+1, (m_term_width/2)-11, "[Width:%i]-[Height:%i]", m_term_width, m_term_height);
-		mvprintw((m_term_height/2)+3, (m_term_width/2)-10, "Needed terminal size.");
-		mvprintw((m_term_height/2)+4, (m_term_width/2)-11, "[Width:%zu]-[Height:%zu]", m_min_width, m_min_height);
+		display_error();
 	}
 	if (m_type == 0 ){
-
+	
 	}else if (m_type == 1){
 		std::this_thread::sleep_for(std::chrono::milliseconds(m_wtime));
 		//m_old_time = m_new_time;
@@ -124,14 +123,22 @@ void Renderer::game_loop(void update(), void draw()){
 	doupdate();
 	auto old_time = std::chrono::high_resolution_clock::now();
 	while (m_key != m_exit_key) {
-		//input
+		getmaxyx(stdscr, m_term_height, m_term_width);
 		m_key = getch();
 		auto new_time = std::chrono::high_resolution_clock::now();
 		double dt = (new_time - old_time).count() / 1e9;
 		//update here
-		update();
-		draw();
-		update_panels();
+		if (m_term_height != past_h || m_term_width != past_w){
+			past_w = m_term_width, past_h = m_term_height;
+			clear();
+		}
+		if (m_term_width > m_min_width && m_term_height > m_min_height){
+			update();
+			draw();
+			update_panels();
+		}else{
+			display_error();
+		}
 		doupdate();
 		auto frame_time = std::chrono::high_resolution_clock::now();
 		double sleepSecs = 1.0 / m_wtime - (frame_time - new_time).count() / 1e9;
@@ -139,6 +146,12 @@ void Renderer::game_loop(void update(), void draw()){
 		old_time = new_time;
 	}
 	endwin();
+}
+void Renderer::display_error(){
+	mvprintw((m_term_height/2)-3, (m_term_width/2)-11, "Current terminal size.");
+	mvprintw((m_term_height/2)-2, (m_term_width/2)-11, "[Width:%i]-[Height:%i]", m_term_width, m_term_height);
+	mvprintw((m_term_height/2)+1, (m_term_width/2)-10, "Needed terminal size.");
+	mvprintw((m_term_height/2)+2, (m_term_width/2)-11, "[Width:%zu]-[Height:%zu]", m_min_width, m_min_height);
 }
 
 void preciseSleep(double seconds){
@@ -172,14 +185,18 @@ void Renderer::update_renderer(){
 	if (m_type == 0 || m_type == 1){
 		//m_new_time = clock();
 		//m_dt = (m_new_time - m_old_time) * m_frame_rate;
-		update_panels();
+		//if (m_term_width > m_min_width && m_term_height > m_min_height){
+			update_panels();
+		//}
 		doupdate();
 	}else if (m_type == 2){
 		char ch{};
 		while (ch != 'a') {
 			ch = getch();
 		}
-		update_panels();
+		if (m_term_width > m_min_width || m_term_height > m_min_height){
+			update_panels();
+		}
 		doupdate();
 	}
 }
