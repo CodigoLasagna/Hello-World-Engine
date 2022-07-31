@@ -2,7 +2,7 @@
 ## Hello World Engine
 ### Readme pendiente de actualizar
 #### Pac-Man hecho con este motor(libreria).
-![](https://github.com/CodigoLasagna/Hello-World-Engine/blob/master/pacman/preview.gif)
+![](https://github.com/CodigoLasagna/Hello-World-Engine/blob/master/projects/pacman/preview.gif)
 
 ```
 Este es un motor gráfico creado con la finalidad de permitir el diseño y estructuración
