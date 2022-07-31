@@ -1,6 +1,7 @@
 #include "HelloWorldEngine.h" 
 #include <chrono>
 #include <curses.h>
+#include <ncurses.h>
 #include <panel.h>
 
 //Funciones de ventanas
@@ -54,7 +55,6 @@ void Window::clean(){
 Renderer::Renderer(int type, size_t minw, size_t minh):
 	m_type(type), m_min_width(minw), m_min_height(minh){
 	load_curses();
-	getmaxyx(stdscr, m_term_height, m_term_width);
 	if (m_type == 0 || m_type == 1){
 		m_old_time = clock();
 		m_dt = 0.0;
@@ -64,7 +64,6 @@ Renderer::Renderer(int type, size_t minw, size_t minh):
 Renderer::Renderer(int type, size_t minw, size_t minh,int wtime):
 	m_type(type), m_min_width(minw), m_min_height(minh), m_wtime(wtime){
 	load_curses();
-	getmaxyx(stdscr, m_term_height, m_term_width);
 	if (m_type == 0 || m_type == 1){
 		m_old_time = clock();
 		m_dt = 0.0;
@@ -74,7 +73,6 @@ Renderer::Renderer(int type, size_t minw, size_t minh,int wtime):
 Renderer::Renderer(int type, size_t minw, size_t minh, double wtime, int exit_key):
 	m_type(type), m_min_width(minw), m_min_height(minh), m_wtime(double(wtime)), m_exit_key(exit_key){
 	load_curses();
-	getmaxyx(stdscr, m_term_height, m_term_width);
 	if (m_type == 0 || m_type == 1){
 		m_old_time = clock();
 		m_dt = 0.0;
@@ -99,6 +97,9 @@ void Renderer::load_curses(){
 	init_pair(C_MAGENTA, C_MAGENTA, -1);
 	init_pair(C_CYAN, C_CYAN, -1);
 	init_pair(C_WHITE, C_WHITE, -1);
+	getmaxyx(stdscr, m_term_height, m_term_width);
+	isRunning = true;
+	check_sizehealth();
 }
 
 void Renderer::start_renderer(){
@@ -107,9 +108,7 @@ void Renderer::start_renderer(){
 		past_w = m_term_width, past_h = m_term_height;
 		clear();
 	}
-	if (m_term_width < m_min_width || m_term_height < m_min_height){
-		display_error();
-	}
+	check_sizehealth();
 	if (m_type == 0 ){
 	
 	}else if (m_type == 1){
@@ -122,9 +121,9 @@ void Renderer::game_loop(void update(), void draw()){
 	update_panels();
 	doupdate();
 	auto old_time = std::chrono::high_resolution_clock::now();
-	while (m_key != m_exit_key) {
+	while (isRunning == true) {
 		getmaxyx(stdscr, m_term_height, m_term_width);
-		m_key = getch();
+		m_key = getch();if (m_key == m_exit_key) isRunning = false;
 		auto new_time = std::chrono::high_resolution_clock::now();
 		double dt = (new_time - old_time).count() / 1e9;
 		//update here
@@ -132,13 +131,10 @@ void Renderer::game_loop(void update(), void draw()){
 			past_w = m_term_width, past_h = m_term_height;
 			clear();
 		}
-		if (m_term_width > m_min_width && m_term_height > m_min_height){
-			update();
-			draw();
-			update_panels();
-		}else{
-			display_error();
-		}
+		check_sizehealth();
+		update();
+		draw();
+		update_panels();
 		doupdate();
 		auto frame_time = std::chrono::high_resolution_clock::now();
 		double sleepSecs = 1.0 / m_wtime - (frame_time - new_time).count() / 1e9;
@@ -147,6 +143,20 @@ void Renderer::game_loop(void update(), void draw()){
 	}
 	endwin();
 }
+
+void Renderer::check_sizehealth(){
+	while (isRunning == true && (m_term_width < m_min_width || m_term_height < m_min_height)) {
+		getmaxyx(stdscr, m_term_height, m_term_width);
+		if (m_term_height != past_h || m_term_width != past_w){
+			past_w = m_term_width, past_h = m_term_height;
+			clear();
+		}
+		m_key = getch();
+		if (m_key == m_exit_key) isRunning = false;
+		display_error();
+	}
+}
+
 void Renderer::display_error(){
 	mvprintw((m_term_height/2)-3, (m_term_width/2)-11, "Current terminal size.");
 	mvprintw((m_term_height/2)-2, (m_term_width/2)-11, "[Width:%i]-[Height:%i]", m_term_width, m_term_height);

@@ -1,6 +1,7 @@
 //nr 1
 #include "../../HelloWorldEngine.h"
-
+//test de estres para el motor con formato viejo, a primera vista parece mejor, pero no
+//refleja la desventaja de este formato en un juego real
 int main(){
 	char key{};
 	const uint32_t walls_max = 123456789;

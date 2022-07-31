@@ -1,6 +1,6 @@
 //nr 1
 #include "../../HelloWorldEngine.h"
-
+//Aqui suelo testear cosas nuevas para el motoro
 int main(){
 	char key{};
 	Renderer* main_env = new Renderer(1, 66, 34, 30);

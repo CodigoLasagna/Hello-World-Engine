@@ -36,10 +36,12 @@ private:
 public:
 	size_t m_min_width{20}, m_min_height{20};
 	int m_key{};
+	bool isRunning{};
 	Renderer() = default;
 	Renderer(int type, size_t minw, size_t minh);
 	Renderer(int type, size_t minw, size_t minh, int wtime);
 	Renderer(int type, size_t minw, size_t minh, double wtime, int exit_key);
+	void check_sizehealth();
 	void display_error();
 	int get_term_size(char name);
 	void start_renderer();

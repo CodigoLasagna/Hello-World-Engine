@@ -1,14 +1,15 @@
 //nr 1
 #include "../../HelloWorldEngine.h"
-auto* main_env = new Renderer(1, 64, 16, 120.0);//se crea el motor de tipo 1 con dimensiones 64x16
+auto* main_env = new Renderer(1, 64, 32, 120.0);//se crea el motor de tipo 1 con dimensiones 64x16
 												// y 120 milisegundos entre fotogramas (no es preciso)
-Window main_win = Window(16, 8, 0, 0, false, main_env);//se crea una ventana en el motor
+Window main_win = Window(64, 32, 0, 0, false, main_env);//se crea una ventana en el motor
 auto player = instance_create(2, 2, '@');//se crea un objeto
 int key{};//se inicia la variable para botones
 
 int main(){
 	while (key != 'q') {//mientras no se presione Q el juego sigue
 		main_env->start_renderer();//inicio de ciclo de juego
+		main_win.clean();
 		instance_draw(main_win, player);//se dibuja una entidad
 		player->m_coordx+=1;//se actualiza el jugador
 		key = getch();//se espera a que se presione una tecla

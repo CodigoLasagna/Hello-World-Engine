@@ -1,6 +1,6 @@
-//#include "projects/example/main.cpp" //proyecto de explicación para el formato básico
+#include "projects/example/main.cpp" //proyecto de explicación para el formato básico
 
-#include "projects/newloop/main.cpp"
+//#include "projects/newloop/main.cpp"
 //#include "projects/oldloop/main.cpp"
 //#include "projects/nfeatures/main.cpp"
 //#include "projects/specialchars/main.cpp"
