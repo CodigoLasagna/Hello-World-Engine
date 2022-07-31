@@ -1,5 +1,5 @@
-//nr
-#include  "../HelloWorldEngine.h" 
+//nr 1
+#include "../../HelloWorldEngine.h"
 
 int main(){
 	//para iniciar un proyecto, se debe de crear un objeto de rénder antes que cualquier otro objeto.

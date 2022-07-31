@@ -1,12 +1,12 @@
-//nr
-#include  "../HelloWorldEngine.h" 
+//nr 1
+#include "../../HelloWorldEngine.h"
 #include <random>
 
 void inputs();
 void restart();
 void rand_p();
 
-Renderer* main_env = new Renderer(1, 64, 38, 65);
+Renderer* main_env = new Renderer(1, 66, 33, 65);
 int world_w{}, world_h{};
 char key{};
 char coord{'x'};

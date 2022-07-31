@@ -1,11 +1,11 @@
-//nr
-#include "../HelloWorldEngine.h"
+//nr 1
+#include "../../HelloWorldEngine.h"
 
 int grid[9]{}, turn{}, key{}, mode{}, cleared{}, win{};
 std::string input{}, condition{};
 void contMode(), draw(), makeInput(), computer(), start();
 int check(), code(int len);
-Renderer* mainrender = new Renderer(1, 21, 11, 100);
+Renderer* mainrender = new Renderer(1, 22, 18, 100);
 Window mainwin = Window(21, 11, 0, 0, false, mainrender);
 Window table = Window(17, 9, 2, 1, false, mainrender);
 Window inputWin = Window(21, 3, 0, 6, false, mainrender);
