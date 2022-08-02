@@ -1,8 +1,4 @@
 #include "HelloWorldEngine.h" 
-#include <chrono>
-#include <curses.h>
-#include <ncurses.h>
-#include <panel.h>
 
 //Funciones de ventanas
 Window::Window(int width, int height, int x, int y, bool fix, Renderer* render):

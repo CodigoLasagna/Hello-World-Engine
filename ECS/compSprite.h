@@ -9,22 +9,22 @@
 class SpriteComponent : public Component{
 private:
 	PositionComponent *position;
-	chtype sprite{'#'};
+	const char* sprite{"#"};
 	int temp_x{}, temp_y{};
 	int fgc{}, bgc{-1};
 	bool bc{};
 	WINDOW* window;
 public:
 	SpriteComponent() = default;
-	SpriteComponent(chtype s, WINDOW* sWin){
+	SpriteComponent(const char* s, WINDOW* sWin){
 		setSprite(s);
 		window = sWin;
 	}
 	
-	void setSprite(chtype s){
+	void setSprite(const char* s){
 		sprite = s;
 	}
-
+	
 	void setColor(int fg_c, int bg_c, bool bc_c){
 		fgc = fg_c, bgc = bg_c, bc = bc_c;
 	}
@@ -42,11 +42,11 @@ public:
 		init_pair(fgc, fgc, bgc);
 		if (bc == false){
 			wattron(window, COLOR_PAIR(fgc));
-			mvwaddch(window, temp_y, temp_x, sprite);
+			mvwprintw(window, temp_y, temp_x, "%s", sprite);
 			wattroff(window, COLOR_PAIR(fgc));
 		}else{
 			wattron(window, A_BOLD | COLOR_PAIR(fgc));
-			mvwaddch(window, temp_y, temp_x, sprite);
+			mvwprintw(window, temp_y, temp_x, "%s", sprite);
 			wattroff(window, A_BOLD | COLOR_PAIR(fgc));
 		}
 	}

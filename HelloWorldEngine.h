@@ -10,8 +10,7 @@
 #include <cmath>
 #include <chrono>
 #include <thread>
-
-#include "ECS/Components.h"
+#include <iostream>
 
 #define C_BLACK		0
 #define C_RED		1
@@ -29,7 +28,7 @@ private:
 	int past_w{}, past_h{};
 	int m_wtime{200};
 	double m_frame_rate{};
-	double m_old_time{}, m_lapsed{}, m_dt{};
+	double m_old_time{}, m_lapsed{}, m_dt{}, lag{};
 	int m_type{};	// [type 0 == no_sleeptime] [type 1 == sleeptypem] [type 2 == wait for command]
 	void load_curses();
 	int m_exit_key{};

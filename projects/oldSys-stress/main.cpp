@@ -4,15 +4,15 @@
 //refleja la desventaja de este formato en un juego real
 int main(){
 	char key{};
-	const uint32_t walls_max = 123456789;
+	const uint32_t walls_max = 12345678;
 	srand(time(NULL));
 	
-	Renderer* mainenv = new Renderer(1, 80, 48, 150);
-	Window* mainwin = new Window(80, 48, 0, 0, false, mainenv);
+	Renderer* mainenv = new Renderer(1, 32, 16, 150);
+	Window* mainwin = new Window(32, 16, 0, 0, false, mainenv);
 	Instance* walls = new Instance[walls_max]{};
 	for (int i = 0; i < walls_max; i++){
-		walls[i].m_coordx = (rand()%78)+1;
-		walls[i].m_coordy = (rand()%46)+1;
+		walls[i].m_coordx = (rand()%30)+1;
+		walls[i].m_coordy = (rand()%14)+1;
 		walls[i].m_fgcolor = rand()%9;
 	}
 	

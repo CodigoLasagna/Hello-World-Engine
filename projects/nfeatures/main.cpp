@@ -1,4 +1,5 @@
 //nr 1
+#include "../../ECS/Components.h"
 #include "../../HelloWorldEngine.h"
 //Aqui suelo testear cosas nuevas para el motoro
 int main(){
@@ -16,15 +17,15 @@ int main(){
 	for (int i = 0; i < walls_max; i++){
 		walls[i] = &manager.addEntity();
 		walls[i]->addComponent<PositionComponent>(rand()%80, rand()%80);
-		walls[i]->addComponent<SpriteComponent>('#', mainwin->win);
+		walls[i]->addComponent<SpriteComponent>("#", mainwin->win);
 		walls[i]->getComponent<SpriteComponent>().setColor(rand()%9, -1, false);
 	}
 	
 	player.addComponent<PositionComponent>(1, 1);
-	player.addComponent<SpriteComponent>('@', mainwin->win);
+	player.addComponent<SpriteComponent>("@", mainwin->win);
 	
 	enemy.addComponent<PositionComponent>(5, 5);
-	enemy.addComponent<SpriteComponent>('O', mainwin->win);
+	enemy.addComponent<SpriteComponent>("O", mainwin->win);
 	
 	while(key != 'q'){
 		main_env->start_renderer();

@@ -1,0 +1,10 @@
+//nr 1
+#pragma once
+#include "../../ECS/ecs.h"
+#include "../../ECS/compSprite.h"
+#include "../../ECS/compPosition.h"
+#include "compText.hpp"
+#include "compStates.hpp"
+#include "compDrawRect.hpp"
+#include "compGravity.hpp"
+#include "compCollision.hpp"
