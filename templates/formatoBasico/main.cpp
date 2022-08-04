@@ -7,7 +7,7 @@ int main(){
 	//el renderizado de tipo 0, funciona en tiempo real, con la velocidad actual de tu equipo,
 	//el renderizado de tipo 1, funciona con un delay en milisegundos para un loop de juego
 	//mejor controlado.
-	Renderer* main_env = new Renderer(1, 40, 40, 95); // aquí generaremos un objeto de tiempo controlado y 95ms de delay.
+	Renderer* main_env = new Renderer(1, 32, 16, 95); // aquí generaremos un objeto de tiempo controlado y 95ms de delay.
 	
 	//Después procedemos a definir una ventana, puedes tener el número de ventanas que quieras en tu juego.
 	//aquí pediremos el tamaño actual con el que se comenzó la terminal, no es necesario hacer este paso, pero
