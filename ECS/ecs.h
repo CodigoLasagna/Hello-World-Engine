@@ -12,6 +12,8 @@
 #include <array>
 
 class Component;
+
+//Crear entidad
 class Entity;
 
 using ComponentID = size_t;

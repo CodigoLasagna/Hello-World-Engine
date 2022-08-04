@@ -11,5 +11,6 @@
 
 /*Proyectos de pruebas*/
 //#include "wipFeatures/oldSys-stress/main.cpp"	//estres de rendimiento (sistema viejo)
-//#include "wipFeatures/nfeatures/main.cpp"		//pruebas raras con los sistemas experimentales
+#include "wipFeatures/nfeatures/main.cpp"		//pruebas raras con los sistemas experimentales
+//#include "wipFeatures/newSysUses/main.cpp"		//usos con el ECS (loop viejo)
 //#include "wipFeatures/specialchars/main.cpp"	//prueba de caracteres especiales (sistema viejo)

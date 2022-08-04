@@ -22,33 +22,36 @@
 #define C_WHITE		7
 void preciseSleep(double seconds);
 
-class Renderer /*Clase para crear el renderizador*/{
+//crear motor
+class Renderer {
 private:
 	int m_term_width{}, m_term_height{};
 	int past_w{}, past_h{};
 	int m_wtime{200};
 	double m_frame_rate{};
 	double m_old_time{}, m_lapsed{}, m_dt{}, lag{};
-	int m_type{};	// [type 0 == no_sleeptime] [type 1 == sleeptypem] [type 2 == wait for command]
-	void load_curses();
+	int m_type{};// [type 0 == no_sleeptime] [type 1 == sleeptypem] [type 2 == wait for command]
+	void load_curses();//inicia sistema de curses
 	int m_exit_key{};
 public:
 	size_t m_min_width{20}, m_min_height{20};
 	int m_key{};
 	bool isRunning{};
+	//crear un motor básico
 	Renderer() = default;
+	//crear un motor básico de tipo 0
 	Renderer(int type, size_t minw, size_t minh);
-	Renderer(int type, size_t minw, size_t minh, int wtime);
-	Renderer(int type, size_t minw, size_t minh, double wtime, int exit_key);
-	void check_sizehealth();
-	void display_error();
-	int get_term_size(char name);
-	void start_renderer();
-	void game_loop(void update(), void draw());
-	void update_renderer();
-	int get_rtype();
-	double get_dt();
-	~Renderer();
+	Renderer(int type, size_t minw, size_t minh, int wtime);//crear un motor básico de tipo 1
+	Renderer(int type, size_t minw, size_t minh, double wtime, int exit_key);//crear un motor avanzado de tipo 1
+	void check_sizehealth();//comprobar la salud del render (tamaño)
+	void display_error();//mostrar un error de tamaño
+	int get_term_size(char name);//recuperar el tamaño de la terminal
+	void start_renderer();//iniciar loop básico
+	void game_loop(void update(), void draw());//iniciar loop avanzado
+	void update_renderer();//finalizar loop básico
+	int get_rtype();//retorna el tipo del render
+	double get_dt();//retorna el delta time del game loop
+	~Renderer() = default;
 };
 
 class Window{
