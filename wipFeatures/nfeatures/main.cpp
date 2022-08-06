@@ -1,6 +1,5 @@
 //nr 1
-#include "../../ECS/Components.h"
-#include "../../ECS/Components.h"
+#include "ComponentsTest.h"
 #include "../../HelloWorldEngine.h"
 //crear objetos
 void init();
@@ -28,6 +27,6 @@ void draw(){
 }
 
 void init(){
-	player.addComponent<PositionComponent>(2, 1);
-	player.addComponent<SpriteComponent>("#", main_win.win);
+	//player.addComponent<PositionComponent>(2, 1);
+	//player.addComponent<SpriteComponent>("#", main_win.win);
 }
